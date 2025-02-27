@@ -1,0 +1,210 @@
+import { useNavigation } from "@react-navigation/native";
+import { useState } from "react";
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Video from "react-native-video";
+
+const ws = Dimensions.get('screen').width / 440
+
+const getPostStyle = (count, index) => {
+    if (count === 1) return { width: "100%", height: ws*180 };
+    if (count === 2) return { width: "50%", height: ws*180 };
+    if (count === 3) return index === 0 
+        ? { width: "100%", height: ws*180 } 
+        : { width: "50%", height: ws*90 }; 
+    if (count === 4) return { width: "50%", height: ws*90 }; 
+    return { width: "100%", height: ws*180 };
+};
+
+const PostComponent = ({user, post, screen}) => {
+
+    const navigation = useNavigation()
+
+    const [favorite, setFavorite] = useState(false)
+
+    const postDetails = post.post_details || [];
+    const count = postDetails.length;
+
+    return (
+        <View style={styles.postComponent_container}>
+            {
+                screen === "Home" ?
+                <View>
+                    <View style={[styles.center_y, styles.postComponent_user_cancel]} >
+                        <TouchableOpacity
+                            style={styles.center_y}
+                            onPress={() => navigation.navigate("UserDetails")}
+                        >
+                            <Image source={{uri: user.url}} style={styles.postComponent_user_img} />
+                            <Text style={styles.postComponent_user_name}>{user.username}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.center, styles.postComponent_btn_cancel]}>
+                            <Image source={require("../assets/images/Cancel.png")} style={styles.postComponent_icon_cancel} />
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={styles.postComponent_caption}>{post.caption}</Text>
+                </View> : null
+            }
+            <View style={styles.postComponent_img_video}>
+                {
+                    postDetails.map((post_details, index) => {
+                        if (count > 4) {
+                            if (index < 4) {
+                                if (post_details.type === "Image") {
+                                    return <Image key={index} source={require("../assets/images/food.jpg")} style={[styles.postComponent_post_img, getPostStyle(4, index)]} />
+                                }
+                                else {
+                                    return <Video
+                                                key={index}
+                                                source={{ uri: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26" }}
+                                                style={[styles.postComponent_post_video, getPostStyle(4, index)]}
+                                                controls={true}
+                                                resizeMode="cover"
+                                                paused={false}
+                                            />
+                                    }
+                            } 
+                        }
+                        else {
+                            if (post_details.type === "Image") {
+                                return <Image key={index} source={require("../assets/images/food.jpg")} style={[styles.postComponent_post_img, getPostStyle(count, index)]} />
+                            }
+                            else {
+                                return <Video
+                                            key={index}
+                                            source={{ uri: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26" }}
+                                            style={[styles.postComponent_post_video, getPostStyle(count, index)]}
+                                            controls={true}
+                                            resizeMode="cover"
+                                            paused={false}
+                                        />
+                                }
+                        }
+                    })
+                }
+            </View>
+            <View style={[styles.center_y, styles.postComponent_tool]}>
+                <TouchableOpacity 
+                    style={[styles.center, styles.postComponent_btn_tool]}
+                    onPress={() => setFavorite(!favorite)}
+                >
+                    <View style={styles.center_y}>
+                        <Image source={require("../assets/images/Heart.png")} style={[styles.postComponent_icon_tool, styles.postComponent_icon_heart]} />
+                        <Text style={{...styles.postComponent_btn_content, color: favorite ? '#D757AE' : '#000000'}}>Yêu thích</Text>
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    style={[styles.center, styles.postComponent_btn_tool]}
+                    onPress={() => navigation.navigate("PostDetails", {
+                        user: user,
+                        post: post
+                    })}
+                >
+                    <View style={styles.center_y}>
+                        <Image source={require("../assets/images/Comment.png")} style={[styles.postComponent_icon_tool, styles.postComponent_icon_comment]} />
+                        <Text style={styles.postComponent_btn_content}>Bình luận</Text>
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.center, styles.postComponent_btn_tool]}>
+                    <View style={styles.center_y}>
+                        <Image source={require("../assets/images/Share.png")} style={[styles.postComponent_icon_tool, styles.postComponent_icon_share]} />
+                        <Text style={styles.postComponent_btn_content}>Chia sẻ</Text>
+                    </View>
+                </TouchableOpacity>
+            </View>
+
+        </View>
+    )
+}
+
+export default PostComponent;
+
+
+const styles = StyleSheet.create({
+    center: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    center_y: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    postComponent_container: {
+        width: ws*380,
+        backgroundColor: '#F5F5F5',
+        borderRadius: ws*15,
+        paddingHorizontal: ws*20,
+        marginBottom: ws*20,
+        paddingTop: ws*20,
+    },
+    postComponent_user_cancel: {
+        justifyContent: 'space-between',
+        marginBottom: ws*20
+    },
+    postComponent_user_img: {
+        width: ws*30,
+        height: ws*30,
+        borderRadius: ws*30,
+        objectFit: 'cover'
+    },
+    postComponent_user_name: {
+        marginLeft: ws*15,
+        fontSize: ws*18,
+        fontWeight: '500'
+    },
+    postComponent_btn_cancel: {
+        width: ws*30,
+        height: ws*30,
+    },
+    postComponent_icon_cancel: {
+        width: ws*25,
+        height: ws*25,
+        objectFit: 'contain',
+    },
+    postComponent_caption: {
+        marginBottom: ws*20,
+        lineHeight: ws*20,
+        fontSize: 15,
+    },
+    postComponent_img_video: {
+        width: ws * 340,
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: "space-between",
+        gap: 0,
+    },
+    postComponent_post_img: {},
+    postComponent_post_video: {},
+    postComponent_tool: {
+        marginVertical: ws*20,
+        justifyContent: 'space-between'
+    },
+    postComponent_btn_tool: {
+        width: ws*100,
+        height: ws*40,
+        backgroundColor: '#ffffff',
+        borderRadius: ws*10,
+    },
+    postComponent_icon_tool: {
+        width: ws*15,
+        height: ws*15,
+        objectFit: 'contain'
+    },
+    postComponent_btn_content: {
+        marginLeft: 5,
+        fontSize: 12,
+        color: '#000000',
+        fontWeight: '400'
+    },
+    postComponent_icon_heart: {
+        tintColor: '#FFC7ED'
+    },
+    postComponent_icon_comment: {
+        tintColor: '#F5F4AA'
+    },
+    postComponent_icon_share: {
+        tintColor: '#FFB266'
+    },
+})
