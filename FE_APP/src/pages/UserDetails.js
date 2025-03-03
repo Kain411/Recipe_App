@@ -6,20 +6,13 @@ import RecipeComponent from "../components/RecipeComponent";
 
 const ws = Dimensions.get('screen').width / 440
 
-const UserDetails = () => {
+const UserDetails = ({ route }) => {
 
     const navigation = useNavigation()
+    const { user } = route.params
 
     const [click, setClick] = useState(false)
     const [active, setActive] = useState(true)
-
-    const [user, setUser] = useState({
-        url: "https://tse3.mm.bing.net/th?id=OIP.nbK_NmRYM8FW6-wC07dfKAHaJQ&pid=Api&P=0&h=220",
-        username: "Enami Asa",
-        gender: 'Nữ',
-        phone: '0977496705',
-        address: 'Tokyo, Japan'
-    })
 
     const [posts, setPosts] = useState([
         {
@@ -157,7 +150,7 @@ const UserDetails = () => {
 
     return (
         <ScrollView style={styles.userDetails_container}>
-            <ImageBackground source={require("../assets/images/food.jpg")} style={styles.userDetails_user_bg} >
+            <ImageBackground source={{uri: user.bg_url}} style={styles.userDetails_user_bg} >
                 <View style={[styles.center_y, styles.space_between, styles.userDetails_btn]}>
                     <TouchableOpacity 
                         style={[styles.center, styles.userDetails_btn_back]}
@@ -188,7 +181,7 @@ const UserDetails = () => {
                         </TouchableOpacity>
                    </View> : null
                 }
-                <Image source={require("../assets/images/asa.jpg")} style={styles.userDetails_user_img} />
+                <Image source={{uri: user.url}} style={styles.userDetails_user_img} />
             </ImageBackground>
 
             <View style={styles.userDetails_main}>
@@ -197,27 +190,27 @@ const UserDetails = () => {
                         <View style={styles.userDetails_user_info_left}>
                             <View style={[styles.center_y, styles.userDetails_user_info]}>
                                 <Image source={require("../assets/images/Name.png")} style={styles.userDetails_user_icon} />
-                                <Text style={styles.userDetails_user_content}>Enami Asa</Text>
+                                <Text style={styles.userDetails_user_content}>{user.username}</Text>
                             </View>
                             <View style={[styles.center_y, styles.userDetails_user_info]}>
                                 <Image source={require("../assets/images/Gender.png")} style={styles.userDetails_user_icon} />
-                                <Text style={styles.userDetails_user_content}>Nữ</Text>
+                                <Text style={styles.userDetails_user_content}>{user.gender}</Text>
                             </View>
                         </View>
                         <View style={styles.userDetails_user_info_right}>
                             <View style={[styles.center_y, styles.userDetails_user_info]}>
                                 <Image source={require("../assets/images/Dob.png")} style={styles.userDetails_user_icon} />
-                                <Text style={styles.userDetails_user_content}>11/06/2006</Text>
+                                <Text style={styles.userDetails_user_content}>{user.dob}</Text>
                             </View>
                             <View style={[styles.center_y, styles.userDetails_user_info]}>
                                 <Image source={require("../assets/images/Phone.png")} style={styles.userDetails_user_icon} />
-                                <Text style={styles.userDetails_user_content}>0356903816</Text>
+                                <Text style={styles.userDetails_user_content}>{user.phone}</Text>
                             </View>
                         </View>
                     </View>
                     <View style={[styles.center_y, styles.userDetails_user_info]}>
                         <Image source={require("../assets/images/Location.png")} style={styles.userDetails_user_icon} />
-                        <Text style={styles.userDetails_user_content}>Tokyo, Japan</Text>
+                        <Text style={styles.userDetails_user_content}>{user.location}</Text>
                     </View>
                 </View>
 

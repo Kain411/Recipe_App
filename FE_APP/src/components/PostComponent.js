@@ -55,7 +55,7 @@ const PostComponent = ({user, post, screen}) => {
                                 else {
                                     return <Video
                                                 key={index}
-                                                source={{ uri: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26" }}
+                                                source={{ uri: "https://youtu.be/laEtGCLWA7o" }}
                                                 style={[styles.postComponent_post_video, getPostStyle(4, index)]}
                                                 controls={true}
                                                 resizeMode="cover"

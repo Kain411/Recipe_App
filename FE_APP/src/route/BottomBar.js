@@ -2,10 +2,9 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Home from "../pages/Home";
 import Foods from "../pages/Foods";
-import Post from "../pages/Post";
+import Recipe from "../pages/Recipe";
 import Ingredient from "../pages/Ingredient";
 import User from "../pages/User";
-// import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const ws = Dimensions.get('screen').width / 440
 
@@ -56,8 +55,8 @@ const BottomBar = ({route}) => {
                 }}
             />
             <Tab.Screen 
-                name="Post"
-                component={Post}
+                name="Recipe"
+                component={Recipe}
                 options={{
                     tabBarButton: (props) => <BtnPostBottomBar {...props} />
                 }}

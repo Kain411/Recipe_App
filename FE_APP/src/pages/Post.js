@@ -52,9 +52,6 @@ const Post = () => {
 
     return (
         <View style={styles.post_container}>
-            <TouchableOpacity style={[styles.center, styles.post_btn_send]}>
-                <Image source={require("../assets/images/Share.png")} style={styles.post_icon_share} />
-            </TouchableOpacity>
             <View style={[styles.center, styles.post_header]}>
                 <TouchableOpacity 
                     style={[styles.center, styles.post_btn_back]}
@@ -81,6 +78,12 @@ const Post = () => {
                     onPress={() => setCount(count+1)}
                 >
                     <Image source={require("../assets/images/Add.png")} style={styles.post_icon_add} />
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                    style={[styles.center, styles.post_btn_save]}
+                >
+                    <Text style={styles.post_btn_save_content}>Đăng bài</Text>
                 </TouchableOpacity>
             </ScrollView>
         </View>
@@ -109,22 +112,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#ffffff',
     },
-    post_btn_send: {
-        width: ws*60,
-        height: ws*60,
-        borderRadius: ws*60,
-        backgroundColor: '#EBF0F6',
-        position: 'absolute',
-        top: ws*70,
-        right: ws*10,
-        zIndex: 999,
-    },
-    post_icon_share: {
-        width: ws*20,
-        height: ws*20,
-        objectFit: 'contain',
-        tintColor: '#70B9BE',
-    },
     post_header: {
         width: ws*440,
         height: ws*60,
@@ -147,6 +134,7 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     post_main: {
+        flex: 1,
         paddingTop: ws*20,
         paddingHorizontal: ws*30,
     },
@@ -217,5 +205,17 @@ const styles = StyleSheet.create({
     post_icon_add: {
         width: ws*20,
         height: ws*20,
+    },
+    post_btn_save: {
+        width: ws*380,
+        height: ws*70,
+        borderRadius: 20,
+        backgroundColor: '#70B9BE',
+        marginBottom: ws*30,
+    },
+    post_btn_save_content: {
+        color: '#ffffff',
+        fontSize: 20,
+        fontWeight: 'bold',
     },
 })

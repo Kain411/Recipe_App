@@ -1,20 +1,17 @@
-import { useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import PostComponent from "../components/PostComponent";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigation } from "@react-navigation/native";
 
 const ws = Dimensions.get('screen').width / 440
 
 const Home = () => {
 
-    const items = Array.from({ length: 100 }, (_, i) => i + 1);
+    const navigation = useNavigation()
 
-    const [user, setUser] = useState({
-        url: "https://tse3.mm.bing.net/th?id=OIP.nbK_NmRYM8FW6-wC07dfKAHaJQ&pid=Api&P=0&h=220",
-        username: "Enami Asa",
-        gender: 'Nữ',
-        phone: '0977496705',
-        address: 'Tokyo, Japan'
-    })
+    const { user } = useContext(AuthContext)
+    console.log(user)
 
     const [posts, setPosts] = useState([
         {
@@ -157,10 +154,13 @@ const Home = () => {
         >
             <Text style={styles.app_name}>App Name</Text>
             <View style={[styles.center_y, styles.home_user_tool]}>
-                <View style={styles.center_y}>
+                <TouchableOpacity 
+                    style={styles.center_y}
+                    onPress={() => navigation.navigate("UserDetails", { user })}
+                >
                     <Image source={{uri: user.url}} style={styles.home_user_img} /> 
                     <Text style={styles.home_user_name}>{user.username}</Text>
-                </View>                
+                </TouchableOpacity>                
                 <View style={styles.center_y}>
                     <TouchableOpacity style={[styles.center, styles.home_tool_btn]}>
                         <Image source={require("../assets/images/Bell.png")} style={styles.home_tool_icon} />
