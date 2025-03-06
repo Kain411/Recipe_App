@@ -1,18 +1,48 @@
 const express = require("express");
-const UserController = require("../controller/UserController");
 const router = express.Router();
 const { auth } = require("../firebase")
 
-router.get("/getAllUser", async (req, res) => {
+const UserController = require("../controller/UserController");
+
+router.get("", async (req, res) => {
     try {
         const userController = new UserController();
         const users = await userController.getAllUser();
-        res.status(200).json(users)
+
+        if (users.users == null) {
+            return res.status(404).json({message: users.message})
+        }
+
+        return res.status(200).json({
+            users: users.users,
+            message: users.message
+        })
     }
     catch (error) {
-        res.status(500).json({message: 'Error'})
+        return res.status(500).json({message: "Lỗi kết nối!"})
     }
 });
+
+router.get("/user/:userID", async (req, res) => {
+    try {
+        const { userID } = req.params;
+        
+        const userController = new UserController();
+        const user = await userController.getUserByID(userID)
+
+        if (user.user == null) {
+            return res.status(404).json({message: user.message})
+        }
+
+        return res.status(200).json({
+            user: user.user,
+            message: user.message
+        })
+    }
+    catch (error) {
+        return res.status(500).json({message: "Lỗi kết nối!"})
+    }
+})
 
 router.post("/register", async (req, res) => {
     const user = req.body
@@ -49,19 +79,8 @@ router.post("/register", async (req, res) => {
             password: user.password
         })
 
-        const userStore = {
-            bg_url: "https://t4.ftcdn.net/jpg/01/19/11/55/360_F_119115529_mEnw3lGpLdlDkfLgRcVSbFRuVl6sMDty.jpg",
-            url: "https://www.shutterstock.com/image-vector/profile-line-icon-user-outline-260nw-1283517448.jpg",
-            username: "New User",
-            email: user.email,
-            gender: "",
-            dob: "",
-            phone: "",
-            location: ""
-        }
-
         const userController = new UserController();
-        await userController.addNewUser(userStore)
+        await userController.addNewUser(user)
 
         return res.status(201).json({
             user: userRecord,
@@ -83,9 +102,6 @@ router.post("/login", async (req, res) => {
     try {
         const userController = new UserController();
         const userRecord = await userController.getUserByEmail(user.email)
-
-
-        console.log(userRecord)
 
         return res.status(200).json({
             user: userRecord.user,

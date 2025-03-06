@@ -1,152 +1,57 @@
-import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { useContext, useEffect, useState } from "react";
 import { Dimensions, Image, ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import PostComponent from "../components/PostComponent";
 import RecipeComponent from "../components/RecipeComponent";
+import { AuthContext } from "../context/AuthContext";
+import { PostContext } from "../context/PostContext";
 
 const ws = Dimensions.get('screen').width / 440
 
-const UserDetails = ({ route }) => {
+const UserDetails = () => {
 
     const navigation = useNavigation()
-    const { user } = route.params
+
+    const route = useRoute()
+    const { user } = route.params || {}
+    const { userLogin } = useContext(AuthContext)
+    const { handleGetAllPostByUserID, handleGetAllPostDetailsByPostID } = useContext(PostContext)
 
     const [click, setClick] = useState(false)
     const [active, setActive] = useState(true)
+    const [lstPost, setLstPost] = useState([])
 
-    const [posts, setPosts] = useState([
-        {
-            caption: "Lần đầu làm mà thành công ghê",
-            created_at: '12/02/2024',
-            post_details: [
-                {
-                    type: "Video",
-                    caption: "Công thức này ngon",
-                    url: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26",
-                },
-                {
-                    type: "Image",
-                    caption: "Cái này ngon",
-                    url: "https://tse3.mm.bing.net/th?id=OIP.FiEGdkmGTNJwV3F_-PpIAgHaEq&pid=Api&P=0&h=220",
-                },
-                {
-                    type: "Image",
-                    caption: "Cái này ngon",
-                    url: "https://tse3.mm.bing.net/th?id=OIP.FiEGdkmGTNJwV3F_-PpIAgHaEq&pid=Api&P=0&h=220",
-                },
-                {
-                    type: "Video",
-                    caption: "Công thức này ngon",
-                    url: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26",
-                },
-            ]
-        },
-        {
-            caption: "Lần đầu làm mà thành công ghê",
-            created_at: '12/02/2024',
-            post_details: [
-                {
-                    type: "Video",
-                    caption: "Công thức này ngon",
-                    url: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26",
-                },
-                {
-                    type: "Image",
-                    caption: "Cái này ngon",
-                    url: "https://tse3.mm.bing.net/th?id=OIP.FiEGdkmGTNJwV3F_-PpIAgHaEq&pid=Api&P=0&h=220",
-                },
-                {
-                    type: "Image",
-                    caption: "Cái này ngon",
-                    url: "https://tse3.mm.bing.net/th?id=OIP.FiEGdkmGTNJwV3F_-PpIAgHaEq&pid=Api&P=0&h=220",
-                },
-            ]
-        },
-        {
-            caption: "Lần đầu làm mà thành công ghê",
-            created_at: '12/02/2024',
-            post_details: [
-                {
-                    type: "Video",
-                    caption: "Công thức này ngon",
-                    url: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26",
-                },
-            ]
-        },
-        {
-            caption: "Lần đầu làm mà thành công ghê",
-            created_at: '12/02/2024',
-            post_details: [
-                {
-                    type: "Image",
-                    caption: "Cái này ngon",
-                    url: "https://tse3.mm.bing.net/th?id=OIP.FiEGdkmGTNJwV3F_-PpIAgHaEq&pid=Api&P=0&h=220",
-                },
-            ]
-        },
-        {
-            caption: "Lần đầu làm mà thành công ghê",
-            created_at: '12/02/2024',
-            post_details: [
-                {
-                    type: "Image",
-                    caption: "Cái này ngon",
-                    url: "https://tse3.mm.bing.net/th?id=OIP.FiEGdkmGTNJwV3F_-PpIAgHaEq&pid=Api&P=0&h=220",
-                },
-                {
-                    type: "Video",
-                    caption: "Công thức này ngon",
-                    url: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26",
-                },
-            ]
-        },
-        {
-            caption: "Lần đầu làm mà thành công ghê",
-            created_at: '12/02/2024',
-            post_details: [
-                {
-                    type: "Image",
-                    caption: "Cái này ngon",
-                    url: "https://tse3.mm.bing.net/th?id=OIP.FiEGdkmGTNJwV3F_-PpIAgHaEq&pid=Api&P=0&h=220",
-                },
-                {
-                    type: "Video",
-                    caption: "Công thức này ngon",
-                    url: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26",
-                },
-                {
-                    type: "Image",
-                    caption: "Cái này ngon",
-                    url: "https://tse3.mm.bing.net/th?id=OIP.FiEGdkmGTNJwV3F_-PpIAgHaEq&pid=Api&P=0&h=220",
-                },
-                {
-                    type: "Video",
-                    caption: "Công thức này ngon",
-                    url: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26",
-                },
-                {
-                    type: "Image",
-                    caption: "Cái này ngon",
-                    url: "https://tse3.mm.bing.net/th?id=OIP.FiEGdkmGTNJwV3F_-PpIAgHaEq&pid=Api&P=0&h=220",
-                },
-                {
-                    type: "Video",
-                    caption: "Công thức này ngon",
-                    url: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26",
-                },
-                {
-                    type: "Image",
-                    caption: "Cái này ngon",
-                    url: "https://tse3.mm.bing.net/th?id=OIP.FiEGdkmGTNJwV3F_-PpIAgHaEq&pid=Api&P=0&h=220",
-                },
-                {
-                    type: "Video",
-                    caption: "Công thức này ngon",
-                    url: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26",
-                },
-            ]
-        },
-    ])
+    useEffect(() => {
+        const getUserPosts = async () => {
+            const postRef = await handleGetAllPostByUserID(user.id)
+            const postDatas = postRef.posts
+
+            const getInfo = async () => {
+                const posts = []
+
+                for (const postData of postDatas) {
+                    const postID = postData.id;
+
+                    const postDetailsRef = await handleGetAllPostDetailsByPostID(postID)
+                    const postDetailsData = postDetailsRef.postDetails
+
+                    const post = {
+                        id: postData.id,
+                        caption: postData.caption,
+                        user: user,
+                        post_details: postDetailsData
+                    }
+
+                    posts.push(post)
+                }
+                return posts
+            }
+            const posts = await getInfo()
+            setLstPost(posts)
+        }
+        getUserPosts()
+    }, [])
+    
 
     return (
         <ScrollView style={styles.userDetails_container}>
@@ -158,12 +63,15 @@ const UserDetails = ({ route }) => {
                     >
                         <Image source={require("../assets/images/Mark_X.png")} style={styles.userDetails_icon} />
                     </TouchableOpacity>
-                    <TouchableOpacity 
-                        style={[styles.center, styles.userDetails_btn_add]}
-                        onPress={() => setClick(!click)}
-                    >
-                        <Image source={require("../assets/images/Add.png")} style={styles.userDetails_icon} />
-                    </TouchableOpacity>
+                    {
+                        user.id === userLogin.id ?
+                        <TouchableOpacity 
+                            style={[styles.center, styles.userDetails_btn_add]}
+                            onPress={() => setClick(!click)}
+                        >
+                            <Image source={require("../assets/images/Add.png")} style={styles.userDetails_icon} />
+                        </TouchableOpacity> : null
+                    }
                 </View>
                 {
                     click ? 
@@ -233,9 +141,9 @@ const UserDetails = ({ route }) => {
                     active ? 
                     <View style={styles.userDetails_list}>
                         {
-                            posts.map((post, index) => {
+                            lstPost.map((post, index) => {
                                 return (
-                                    <PostComponent key={index} user={user} post={post} screen="Home" />
+                                    <PostComponent key={index} post={post} content="Details" />
                                 )
                             })
                         }

@@ -1,12 +1,12 @@
 import React, { createContext, useState } from 'react'
-import { register, login } from '../services/AuthService'
+import { register, login, getUserByID } from '../services/AuthService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { auth, signInWithEmailAndPassword } from "../database/firebase";
 
 export const AuthContext = createContext()
 
 export const AuthProvider = ({children}) => {
-    const [user, setUser] = useState(null)
+    const [userLogin, setUserLogin] = useState(null)
 
     const handleRegister = async (user) => {
         const result = await register(user) 
@@ -18,7 +18,7 @@ export const AuthProvider = ({children}) => {
 
     const handleLogin = async (user) => {
 
-        user.email = "rami@gmail.com"
+        user.email = "asa@gmail.com"
         user.password = "411411"
 
         if (!user.email || !user.password) {
@@ -38,7 +38,7 @@ export const AuthProvider = ({children}) => {
             const result = await login(user)
 
             if (result.success) {
-                setUser(result.user)
+                setUserLogin(result.user)
                 await AsyncStorage.setItem("user", JSON.stringify(result.user))
                 return { success: true, message: result.message }
             }
@@ -49,8 +49,14 @@ export const AuthProvider = ({children}) => {
         }
     }
 
+    const handleGetUserByID = async (userID) => {
+        const result = await getUserByID(userID)
+
+        return { user: result.user, message: result.message }
+    }
+
     return (
-        <AuthContext.Provider value={{ user, handleRegister, handleLogin }}>
+        <AuthContext.Provider value={{ userLogin, handleRegister, handleLogin, handleGetUserByID }}>
             {children}
         </AuthContext.Provider>
     )

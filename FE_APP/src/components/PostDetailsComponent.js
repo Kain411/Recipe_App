@@ -1,5 +1,5 @@
 import { Dimensions, Image, StyleSheet, Text, View } from "react-native";
-import Video from "react-native-video";
+import WebView from "react-native-webview";
 
 const ws = Dimensions.get('screen').width / 440
 
@@ -10,14 +10,12 @@ const PostDetailsComponent = ({post_details}) => {
             <Text style={styles.postDetailsComponent_caption}>{post_details.caption}</Text>
             {
                 post_details.type === "Image" ?
-                <Image source={require("../assets/images/food.jpg")} style={styles.postDetailsComponent_url} /> 
+                <Image source={{uri: post_details.url}} style={styles.postDetailsComponent_url} /> 
                 :
-                <Video 
+                <WebView 
                     style={styles.postDetailsComponent_url}
-                    source={{ uri: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26" }}
-                    controls={true}
-                    resizeMode="cover"
-                    paused={false}
+                    source={{ uri: post_details.video.replace("watch?v=", "embed/") }}
+                    allowsFullscreenVideo={true}
                 />
             }
         </View>

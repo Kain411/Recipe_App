@@ -27,7 +27,7 @@ const Login = () => {
 
         if (response.success) {
             setMessage(response.message)
-            navigation.navigate("BottomBar")
+            navigation.replace("BottomBar")
         }
         else {
             setMessage(response.message)
@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
         flex: 1,
         width: ws*440,
         paddingHorizontal: ws*50,
+        objectFit: 'contain'
     },
     auth_hello: {
         marginTop: ws*90,

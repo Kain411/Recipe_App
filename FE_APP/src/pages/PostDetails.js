@@ -1,9 +1,10 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { Dimensions, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import PostComponent from "../components/PostComponent";
+import { Alert, Dimensions, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import CommentComponent from "../components/CommentComponent";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import PostDetailsComponent from "../components/PostDetailsComponent";
+import { CommentContext } from "../context/CommentContext";
+import { AuthContext } from "../context/AuthContext";
 
 const ws = Dimensions.get('screen').width / 440
 
@@ -11,20 +12,57 @@ const PostDetails = () => {
 
     const navigation = useNavigation()
 
-    const user = useRoute().params.user
     const post = useRoute().params.post
+    const user = post.user
     const postDetails = post.post_details || []
 
-    const [comment, setComment] = useState([
-        "Món này ngon nha.",
-        "Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha.",
-        "Món này ngon nha.",
-        "Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha.",
-        "Món này ngon nha.",
-        "Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha.",
-        "Món này ngon nha.",
-        "Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha. Món này ngon nha.",
-    ])
+    const { userLogin, handleGetUserByID } = useContext(AuthContext)
+    const { handleGetAllCommentByPostID, handlePostNewComment } = useContext(CommentContext)
+
+    const [lstComment, setLstComment] = useState([])
+    const [myComment, setMyComment] = useState("") 
+    const [alert, setAlert] = useState("")
+
+    useEffect(() => {
+        const getComments = async () => {
+            const commentRef = await handleGetAllCommentByPostID(post.id)
+            const commentDatas = commentRef.comments
+
+            const getUserOfComment = async () => {
+                const comments = []
+
+                for (const commentData of commentDatas) {
+                    const userID = commentData.user_id
+
+                    const userRef = await handleGetUserByID(userID)
+                    const userData = userRef.user
+
+                    const comment = {
+                        id: commentData.id,
+                        comment: commentData.comment,
+                        user: userData
+                    }
+
+                    comments.push(comment)
+                }
+                return comments
+            }
+            const comments = await getUserOfComment()
+            setLstComment(comments)
+        }
+        getComments()
+    }, [])
+
+    const handlePostComment = async () => {
+        const response = await handlePostNewComment(userLogin.id, post.id, myComment)
+        setAlert(response.message)
+        setMyComment("")
+        Alert.alert(
+            "Cảnh báo", 
+            alert,
+            [{ text: "OK", onPress: () => setAlert("") }]
+        )
+    }
 
     return (
         <View style={styles.postDetails_container}>
@@ -37,17 +75,16 @@ const PostDetails = () => {
                 </TouchableOpacity>
                 <TouchableOpacity 
                     style={[styles.center_y, styles.postDetails_user]}
-                    onPress={() => navigation.navigate("UserDetails")}
+                    onPress={() => navigation.navigate("UserDetails", {user: user})}
                 >
-                    <Image source={require("../assets/images/asa.jpg")} style={styles.postDetails_user_img} />
-                    <Text style={styles.postDetails_user_name}>Enami Asa</Text>
+                    <Image source={{uri: user.url}} style={styles.postDetails_user_img} />
+                    <Text style={styles.postDetails_user_name}>{user.username}</Text>
                 </TouchableOpacity>
             </View>
             <ScrollView style={styles.postDetails_content}>
                 <Text style={styles.postDetails_caption}>{post.caption}</Text>
                 {
                     postDetails.map((post_details, index) => {
-                        console.log("Details: ", post_details)
                         return <PostDetailsComponent key={index} post_details={post_details} />
                     })
                 }
@@ -55,8 +92,8 @@ const PostDetails = () => {
                 <View style={styles.postDetails_hr} />
                 <Text style={styles.postDetails_comment}>Bình luận</Text>
                 {
-                    comment.map((data, index) => {
-                        return <CommentComponent key={index} user={user} comment={data} />
+                    lstComment.map((comment, index) => {
+                        return <CommentComponent key={index} comment={comment} />
                     })
                 }
             </ScrollView>
@@ -65,8 +102,16 @@ const PostDetails = () => {
                 <TouchableOpacity style={[styles.center, styles.postDetails_btn_write]}>
                     <Image source={require("../assets/images/Group_Icon.png")} style={styles.postDetails_icon_group} />
                 </TouchableOpacity>
-                <TextInput placeholder="Viết bình luận ..." style={styles.postDetails_input} />
-                <TouchableOpacity style={[styles.center, styles.postDetails_btn_write]}>
+                <TextInput 
+                    value={myComment}
+                    onChangeText={(comment) => setMyComment(comment)}
+                    style={styles.postDetails_input} 
+                    placeholder="Viết bình luận ..." 
+                />
+                <TouchableOpacity 
+                    style={[styles.center, styles.postDetails_btn_write]}
+                    onPress={handlePostComment}
+                >
                     <Image source={require("../assets/images/Share.png")} style={styles.postDetails_icon_group} />
                 </TouchableOpacity>
             </View>

@@ -1,4 +1,5 @@
-const API_URL = "http://172.11.108.184:8000/api/users"
+import { HostURL } from "./Host"
+const API_URL = `${HostURL}/users`
 
 export const register = async (user) => {
     try {
@@ -11,8 +12,6 @@ export const register = async (user) => {
         })
 
         const data = await response.json()
-
-        console.log(data.message)
 
         if (response.ok) {
             return { success: true, message: data.message }
@@ -38,18 +37,34 @@ export const login = async (user) => {
 
         const data = await response.json()
 
-        if (response.ok) {
-            return { 
-                success: true, 
-                user: data.user,
-                message: data.message 
-            }
-        }
-        else {
+        if (!response.ok) {
             return { success: false, message: data.message }
+        }
+
+        return { 
+            success: true, 
+            user: data.user,
+            message: data.message 
         }
     }
     catch (error) {
         return { success: false, message: "Lỗi kết nối!" }
+    }
+}
+
+export const getUserByID = async (userID) => {
+    try {
+        const response = await fetch(`${API_URL}/user/${userID}`)
+        
+        if (!response.ok) {
+            return { posts: null, message: "Lỗi kết nối" }
+        }
+
+        const result = await response.json()
+
+        return { user: result.user, message: result.message }
+    }
+    catch (error) {
+        return { user: null, message: "Lỗi kết nối!"  }
     }
 }

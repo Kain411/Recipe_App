@@ -35,8 +35,6 @@ const Register = () => {
         }
     }
 
-    console.log(user)
-
     return (
         <ImageBackground 
             source={require("../assets/images/Background.png")} 

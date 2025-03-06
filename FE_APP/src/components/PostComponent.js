@@ -1,40 +1,49 @@
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Video from "react-native-video";
+import { WebView } from 'react-native-webview'
 
 const ws = Dimensions.get('screen').width / 440
 
 const getPostStyle = (count, index) => {
-    if (count === 1) return { width: "100%", height: ws*180 };
-    if (count === 2) return { width: "50%", height: ws*180 };
+    if (count === 1) return { width: ws*340, height: ws*180 };
+    if (count === 2) return index === 0
+        ? { width: ws*170, height: ws*180 }
+        : { width: ws*170, height: ws*180 };
     if (count === 3) return index === 0 
-        ? { width: "100%", height: ws*180 } 
-        : { width: "50%", height: ws*90 }; 
-    if (count === 4) return { width: "50%", height: ws*90 }; 
-    return { width: "100%", height: ws*180 };
+        ? { width: ws*340, height: ws*180 } 
+        : { width: ws*170, height: ws*90 }; 
+    if (count === 4) return { width: ws*170, height: ws*90 }; 
+    return { width: ws*340, height: ws*180 };
 };
 
-const PostComponent = ({user, post, screen}) => {
+const PostComponent = ({post, content}) => {
 
     const navigation = useNavigation()
 
     const [favorite, setFavorite] = useState(false)
 
+    const user = post.user
     const postDetails = post.post_details || [];
     const count = postDetails.length;
 
     return (
         <View style={styles.postComponent_container}>
             {
-                screen === "Home" ?
+                content === "Details" ?
                 <View>
                     <View style={[styles.center_y, styles.postComponent_user_cancel]} >
                         <TouchableOpacity
                             style={styles.center_y}
-                            onPress={() => navigation.navigate("UserDetails")}
+                            onPress={() => {
+                                if (user) {
+                                    navigation.navigate("UserDetails", { user: user });
+                                } else {
+                                    console.warn("User is undefined");
+                                }
+                            }}
                         >
-                            <Image source={{uri: user.url}} style={styles.postComponent_user_img} />
+                            <Image source={{uri: user?.url}} style={styles.postComponent_user_img} />
                             <Text style={styles.postComponent_user_name}>{user.username}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.center, styles.postComponent_btn_cancel]}>
@@ -50,32 +59,28 @@ const PostComponent = ({user, post, screen}) => {
                         if (count > 4) {
                             if (index < 4) {
                                 if (post_details.type === "Image") {
-                                    return <Image key={index} source={require("../assets/images/food.jpg")} style={[styles.postComponent_post_img, getPostStyle(4, index)]} />
+                                    return <Image key={index} source={{ uri: post_details.url }} style={[styles.postComponent_post_img, getPostStyle(4, index)]} />
                                 }
                                 else {
-                                    return <Video
+                                    return <WebView
                                                 key={index}
-                                                source={{ uri: "https://youtu.be/laEtGCLWA7o" }}
-                                                style={[styles.postComponent_post_video, getPostStyle(4, index)]}
-                                                controls={true}
-                                                resizeMode="cover"
-                                                paused={false}
+                                                source={{ uri: post_details.video.replace("watch?v=", "embed/") }}
+                                                style={[styles.postComponent_post_video, getPostStyle(count, index)]}
+                                                allowsFullscreenVideo={true}
                                             />
                                     }
                             } 
                         }
                         else {
                             if (post_details.type === "Image") {
-                                return <Image key={index} source={require("../assets/images/food.jpg")} style={[styles.postComponent_post_img, getPostStyle(count, index)]} />
+                                return <Image key={index} source={{ uri: post_details.url }} style={[styles.postComponent_post_img, getPostStyle(count, index)]} />
                             }
                             else {
-                                return <Video
+                                return <WebView
                                             key={index}
-                                            source={{ uri: "https://www.youtube.com/watch?v=JrNMyzsYr4M&list=PLHkNSPIHGdpZn550zYCz4Rx8gCid7f5T6&index=26" }}
+                                            source={{ uri: post_details.video.replace("watch?v=", "embed/") }}
                                             style={[styles.postComponent_post_video, getPostStyle(count, index)]}
-                                            controls={true}
-                                            resizeMode="cover"
-                                            paused={false}
+                                            allowsFullscreenVideo={true}
                                         />
                                 }
                         }
@@ -95,7 +100,6 @@ const PostComponent = ({user, post, screen}) => {
                 <TouchableOpacity 
                     style={[styles.center, styles.postComponent_btn_tool]}
                     onPress={() => navigation.navigate("PostDetails", {
-                        user: user,
                         post: post
                     })}
                 >

@@ -8,6 +8,7 @@ class UserController {
     async getAllUser() {
         try {
             const snapshot = await db.collection('users').get();
+            
             const users = [];
             snapshot.forEach((doc) => {
                 users.push(new UserModel(
@@ -22,18 +23,54 @@ class UserController {
                     doc.data().location,
                 ));
             });
-            return users
+            return {
+                users: users,
+                message: "Danh sách user!"
+            };
         } 
         catch (error) {
             console.error(error);
-            return [];
+            return {
+                users: null,
+                message: "Lỗi kết nối!"
+            };
+        }
+    }
+
+    async getUserByID(userID) {
+        try {
+            const userRef = await db.collection("users").doc(userID).get()
+
+            return {
+                user: {
+                    id: userRef.id,
+                    ...userRef.data()
+                },
+                message: "Tìm thấy user!"
+            };
+        }
+        catch (error) {
+            return {
+                user: null,
+                message: "Lỗi kết nối!"
+            };
         }
     }
 
     async addNewUser(user) {
         try {
-           await db.collection("users").add(user);
-           console.log("Success")
+            const userStore = {
+                bg_url: "https://t4.ftcdn.net/jpg/01/19/11/55/360_F_119115529_mEnw3lGpLdlDkfLgRcVSbFRuVl6sMDty.jpg",
+                url: "https://www.shutterstock.com/image-vector/profile-line-icon-user-outline-260nw-1283517448.jpg",
+                username: "New User",
+                email: user.email,
+                gender: "",
+                dob: "",
+                phone: "",
+                location: ""
+            }
+
+           await db.collection("users").add(userStore);
         }
         catch (error) {
             console.error(error)
@@ -53,12 +90,14 @@ class UserController {
             }
 
             return {
-                user: query.docs[0].data(),
+                user: {
+                    id: query.docs[0].id,
+                    ...query.docs[0].data()
+                },
                 message: "Đăng nhập thành công!"
-            }
+            };
         }
         catch (error) {
-            console.log(error)
             return {
                 user: null,
                 message: "Lỗi collection!"
