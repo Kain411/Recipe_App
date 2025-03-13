@@ -64,7 +64,7 @@ const PostComponent = ({post, content}) => {
                                 else {
                                     return <WebView
                                                 key={index}
-                                                source={{ uri: post_details.video.replace("watch?v=", "embed/") }}
+                                                source={{ uri: post_details.url.replace("watch?v=", "embed/") }}
                                                 style={[styles.postComponent_post_video, getPostStyle(count, index)]}
                                                 allowsFullscreenVideo={true}
                                             />
@@ -78,7 +78,7 @@ const PostComponent = ({post, content}) => {
                             else {
                                 return <WebView
                                             key={index}
-                                            source={{ uri: post_details.video.replace("watch?v=", "embed/") }}
+                                            source={{ uri: post_details.url.replace("watch?v=", "embed/") }}
                                             style={[styles.postComponent_post_video, getPostStyle(count, index)]}
                                             allowsFullscreenVideo={true}
                                         />

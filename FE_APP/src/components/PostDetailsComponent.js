@@ -14,7 +14,7 @@ const PostDetailsComponent = ({post_details}) => {
                 :
                 <WebView 
                     style={styles.postDetailsComponent_url}
-                    source={{ uri: post_details.video.replace("watch?v=", "embed/") }}
+                    source={{ uri: post_details.url.replace("watch?v=", "embed/") }}
                     allowsFullscreenVideo={true}
                 />
             }

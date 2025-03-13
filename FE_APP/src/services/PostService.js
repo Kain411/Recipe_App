@@ -51,3 +51,42 @@ export const getAllPostDetailsByPostID = async (postID) => {
         return { postDetails: null, message: "Lỗi kết nối!" }
     }
 }
+
+export const postNewPost = async (post) => {
+    try {
+        const response = await fetch(`${API_URL}/newPost`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(post)
+        })
+
+        const data = await response.json()
+
+        return { post_id: data.post_id, message: data.message }
+    }
+    catch (error) {
+        return { post_id: null, message: "Lỗi kết nối!" }
+    }
+}
+
+export const postNewPostDetails = async (postDetails) => {
+    try {
+        console.log(postDetails)
+        const response = await fetch(`${API_URL}/newPostDetails`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(postDetails)
+        })
+
+        const data = await response.json()
+
+        return { message: data.message }
+    }
+    catch (error) {
+        return { message: "Lỗi kết nối!" }
+    }
+}

@@ -1,5 +1,5 @@
 import React, { createContext } from "react";
-import { getAllPost, getAllPostByUserID, getAllPostDetailsByPostID } from "../services/PostService";
+import { getAllPost, getAllPostByUserID, getAllPostDetailsByPostID, postNewPost, postNewPostDetails } from "../services/PostService";
 
 export const PostContext = createContext()
 
@@ -23,8 +23,20 @@ export const PostProvider = ({children}) => {
         return { postDetails: result.postDetails, message: result.message }
     }
 
+    const handlePostNewPost = async (post) => {
+        const result = await postNewPost(post)
+
+        return { post_id: result.post_id, message: result.message }
+    }
+
+    const handlePostNewPostDetails = async (postDetails) => {
+        const result = await postNewPostDetails(postDetails)
+
+        return { message: result.message }
+    }
+
     return (
-        <PostContext.Provider value={{ handleGetAllPost, handleGetAllPostByUserID, handleGetAllPostDetailsByPostID }}>
+        <PostContext.Provider value={{ handleGetAllPost, handleGetAllPostByUserID, handleGetAllPostDetailsByPostID, handlePostNewPost, handlePostNewPostDetails }}>
             {children}
         </PostContext.Provider>
     )

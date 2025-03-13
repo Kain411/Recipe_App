@@ -52,4 +52,37 @@ router.get("/:postID/details", async (req, res) => {
     }
 })
 
+router.post("/newPost", async (req, res) => {
+    try {
+        const post = req.body
+
+        const postController = new PostController()
+        const postRecord = await postController.postNewPost(post)
+
+        return res.status(200).json({ post_id: postRecord.post_id, message: postRecord.message })
+    }
+    catch (error) {
+        return res.status(500).json({ post_id: null, message: "Lỗi kết nối!" })
+    }
+})
+
+router.post("/newPostDetails", async (req, res) => {
+    try {
+        const postDetails = req.body
+
+        const postDetailsController = new PostDetailsController()
+        for (const posDetail of postDetails) {
+            const postDetailRecord = await postDetailsController.postNewPostDetails(posDetail)
+            if (postDetailRecord.message !== "Thành công!") {
+                return res.status(404).json({ message: "Lỗi kết nối!" })
+            }
+        }
+
+        return res.status(200).json({ message: "Thành công!" })
+    }
+    catch (error) {
+        return res.status(500).json({ message: "Lỗi kết nối!" })
+    }
+})
+
 module.exports = router;

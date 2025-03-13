@@ -57,6 +57,17 @@ class PostController {
             }
         }
     }
+
+    async postNewPost(post) {
+        try {
+            const postStore = await db.collection("posts").add(post)
+
+            return { post_id: postStore.id, message: "Thành công!" }
+        }
+        catch (error) {
+            return { post_id: null, message: "Lỗi kết nối!" }
+        }
+    }
 }
 
 class PostDetailsController {
@@ -91,6 +102,17 @@ class PostDetailsController {
             }
         }
     }
+
+    async postNewPostDetails(postDetail) {
+        try {
+            await db.collection("post_details").add(postDetail)
+
+            return { message: "Thành công!" }
+        }
+        catch (error) {
+            return { message: "Lỗi kết nối!" }
+        }
+    }   
 }
 
 module.exports = { PostController, PostDetailsController }

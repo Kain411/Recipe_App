@@ -1,41 +1,84 @@
 import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
-import { Dimensions, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useContext, useState } from "react";
+import { Alert, Dimensions, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { AuthContext } from "../context/AuthContext";
+import { PostContext } from "../context/PostContext";
 
 const ws = Dimensions.get('screen').width / 440
 
-const ImageVideoComponent = ({SubCount}) => {
+const ImageVideoComponent = ({data, index, handleInfo, handleDelete}) => {
 
-    const [active, setActive] = useState("Image")
+    const [display, setDisplay] = useState(true)
+    const [textURL, setTextURL] = useState("")
+
+    const handleSaveURL = () => {
+        handleInfo(index, "url", textURL)
+        setTextURL("")
+        setDisplay(false)
+    }
+
+    console.log(textURL)
 
     return (
         <View style={styles.imageVideoComponent_container}>
             <View style={styles.space_between}>
                 <View style={styles.center_y}>
                     <TouchableOpacity 
-                        style={{...styles.center, ...styles.imageVideoComponent_btn_img, backgroundColor: active==="Image" ? '#ffffff' : '#F5F5F5'}}
-                        onPress={() => setActive("Image")}
+                        style={{...styles.center, ...styles.imageVideoComponent_btn_img, backgroundColor: data.type==="Image" ? '#ffffff' : '#F5F5F5'}}
+                        onPress={() => handleInfo(index, "type", "Image")}
                     >
-                        <Text style={{...styles.imageVideoComponent_btn_content, color: active==="Image" ? '#307F85' : '#000000'}}>Hình ảnh</Text>
+                        <Text style={{...styles.imageVideoComponent_btn_content, color: data.type==="Image" ? '#307F85' : '#000000'}}>Hình ảnh</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
-                        style={{...styles.center, ...styles.imageVideoComponent_btn_img, backgroundColor: active==="Video" ? '#ffffff' : '#F5F5F5'}}
-                        onPress={() => setActive("Video")}
+                        style={{...styles.center, ...styles.imageVideoComponent_btn_img, backgroundColor: data.type==="Video" ? '#ffffff' : '#F5F5F5'}}
+                        onPress={() => handleInfo(index, "type", "Video")}
                     >
-                        <Text style={{...styles.imageVideoComponent_btn_content, color: active==="Video" ? '#307F85' : '#000000'}}>Video</Text>
+                        <Text style={{...styles.imageVideoComponent_btn_content, color: data.type==="Video" ? '#307F85' : '#000000'}}>Video</Text>
                     </TouchableOpacity>
                 </View>
                 <TouchableOpacity 
                     style={[styles.center, styles.imageVideoComponent_btn_bin]}
-                    onPress={SubCount}
+                    onPress={() => handleDelete(index)}
                 >
                     <Image source={require("../assets/images/Bin.png")} style={styles.imageVideoComponent_icon_bin} />
                 </TouchableOpacity>
             </View>
-
-            <Image source={require("../assets/images/food.jpg")} style={styles.imageVideoComponent_url}/>
-
-            <TextInput style={styles.imageVideoComponent_input_description} multiline={true} placeholder="Mô tả" />
+            {
+                display ? 
+                <View style={{...styles.center_y, marginTop: ws*10}}>
+                    <TextInput 
+                        style={[styles.center, styles.imageVideoComponent_input_url]} 
+                        multiline={true} 
+                        placeholder="Nhập url..." 
+                        value={textURL}
+                        onChangeText={(text) => setTextURL(text)}
+                    /> 
+                    <TouchableOpacity 
+                        style={[styles.center, styles.imageVideoComponent_btn_addImageVideo]}
+                        onPress={handleSaveURL}
+                    >
+                        <Image source={require("../assets/images/Share.png")} style={styles.imageVideoComponent_urlImageVideo} />
+                    </TouchableOpacity>
+                </View>
+                : null
+            }
+            <TouchableOpacity 
+                style={[styles.center, styles.imageVideoComponent_btn_url]}
+                onPress={() => setDisplay(!display)}
+            >
+                {
+                    data.url !== null ?
+                    <Image source={{uri: data.url}} style={styles.imageVideoComponent_url}/>
+                    : <Image source={require("../assets/images/Button_Add.png")} style={styles.imageVideoComponent_url}/>
+                }
+            </TouchableOpacity>
+            <TextInput 
+                style={styles.imageVideoComponent_input_description} 
+                multiline={true} 
+                placeholder="Mô tả" 
+                value={data.caption}
+                onChangeText={(text) => handleInfo(index, "caption", text)}
+            />
         </View>
     )
 }
@@ -44,10 +87,79 @@ const Post = () => {
 
     const navigation = useNavigation()
 
-    const [count, setCount] = useState(1)
+    const { userLogin } = useContext(AuthContext)
+    const { handlePostNewPost, handlePostNewPostDetails } = useContext(PostContext)
 
-    const SubCount = () => {
-        setCount(count - 1)
+    const [caption, setCaption] = useState("")
+    const [postDetails, setPostDetails] = useState([{
+        type: "Image",
+        url: null,
+        caption: ""
+    }])
+
+    const addImageVideo = () => {
+        setPostDetails([
+            ...postDetails,
+            {
+                type: "Image",
+                url: null,
+                caption: ""
+            }
+        ])
+    }
+
+    const handleInfo = (index, type, info) => {
+        const lst = [...postDetails]
+        if (type=="type") lst[index].type = info
+        if (type=="url") lst[index].url = info
+        if (type=="caption") lst[index].caption = info
+        setPostDetails(lst)
+    }
+
+    const handleDelete = (index) => {
+        console.log(index)
+        const lst = [...postDetails]
+        lst.splice(index, 1)
+        setPostDetails(lst)
+    }
+
+    const handleSumit = async () => {
+        const post = {
+            user_id: userLogin.id,
+            caption: caption
+        }
+
+        const response1 = await handlePostNewPost(post)
+        const postID = response1.post_id 
+        const message1 = response1.message
+
+        if (message1!=="Thành công!") {
+            Alert.alert("Cảnh báo", message1)
+            return
+        }
+
+        const lstPostDetails = []
+        for (const onePostDetails of postDetails) {
+            lstPostDetails.push({
+                ...onePostDetails,
+                post_id: postID
+            })
+        }
+
+        const response2 = await handlePostNewPostDetails(lstPostDetails)
+        const message2 = response2.message
+
+        Alert.alert("Cảnh báo", message2)
+        if (message2!=="Thành công!") {
+            return
+        }
+
+        setCaption(""),
+        setPostDetails([{
+            type: "Image",
+            url: null,
+            caption: ""
+        }])
     }
 
     return (
@@ -63,25 +175,32 @@ const Post = () => {
             </View>
 
             <ScrollView style={styles.post_main}>
-                <TextInput style={styles.post_input_caption} multiline={true} placeholder="Nội dung" />
+                <TextInput 
+                    style={styles.post_input_caption} 
+                    multiline={true} 
+                    placeholder="Nội dung"
+                    value={caption}
+                    onChangeText={(text) => setCaption(text)}
+                />
 
                 <Text style={styles.post_img_video}>Hình ảnh / Video</Text>
 
                 {
-                    Array.from({length: count}, (_,  index) => {
-                        return <ImageVideoComponent key={index} SubCount={SubCount} />
+                    postDetails.map((data, index) => {
+                        return <ImageVideoComponent key={index} data={data} index={index} handleInfo={handleInfo} handleDelete={handleDelete} />
                     })
                 }
 
                 <TouchableOpacity 
                     style={[styles.center, styles.post_btn_add]}
-                    onPress={() => setCount(count+1)}
+                    onPress={addImageVideo}
                 >
                     <Image source={require("../assets/images/Add.png")} style={styles.post_icon_add} />
                 </TouchableOpacity>
 
                 <TouchableOpacity 
                     style={[styles.center, styles.post_btn_save]}
+                    onPress={handleSumit}
                 >
                     <Text style={styles.post_btn_save_content}>Đăng bài</Text>
                 </TouchableOpacity>
@@ -183,17 +302,59 @@ const styles = StyleSheet.create({
         objectFit: 'contain',
         tintColor: 'red',
     },
-    imageVideoComponent_url: {
+    imageVideoComponent_btn_url: {
         width: '100%',
         height: ws*180,
-        marginVertical: ws*10,
+        marginVertical: ws*15,
+    },
+    imageVideoComponent_url: {
+        width: '90%',
+        height: '100%',
+        objectFit: 'cover',
+        borderRadius: 15,
+    },
+    imageVideoComponent_input_url: {
+        flex: 1,
+        minHeight: ws*45,
+        maxHeight: ws*90,
+        backgroundColor: '#ffffff',
+        paddingLeft: ws*20,
+        borderRadius: 15,
+        marginRight: 20,
+    },
+    imageVideoComponent_btn_addImageVideo: {
+        width: '20%',
+        height: ws*45,
+        borderRadius: 15,
+        backgroundColor: '#70B9BE',
+    },
+    imageVideoComponent_urlImageVideo: {
+        width: ws*15,
+        height: ws*15,
+        tintColor: '#ffffff',
+    },
+    imageVideoComponent_btn_paste: {
+        width: ws*55,
+        height: ws*35,
+        borderRadius: 10,
+        borderTopLeftRadius: 0,
+        backgroundColor: '#000000',
+        position: 'absolute',
+        top: ws*30,
+        left: ws*20,
+        zIndex: 99,
+    },
+    imageVideoComponent_paste: {
+        color: '#ffffff',
+        fontWeight: '500',
     },
     imageVideoComponent_input_description: {
-        width: '100%',
+        flex: 1,
         backgroundColor: '#ffffff',
         paddingLeft: ws*20,
         borderRadius: 15,
         textAlignVertical: 'top',
+        marginBottom: ws*10,
     },
     post_btn_add: {
         width: '100%',
