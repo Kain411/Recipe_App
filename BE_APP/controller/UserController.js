@@ -104,6 +104,31 @@ class UserController {
             };
         }
     }
+    async updateUserByID(userID, userData) {
+        try {
+            const userRef = db.collection("users").doc(userID);
+            const userSnapshot = await userRef.get();
+
+            if (!userSnapshot.exists) {
+                return { success: false, message: "User không tồn tại!" };
+            }
+
+            await userRef.update(userData);
+
+            const updatedUser = await userRef.get();
+
+            return {
+                success: true,
+                user: {
+                    id: updatedUser.id,
+                    ...updatedUser.data()
+                },
+                message: "Cập nhật user thành công!"
+            };
+        } catch (error) {
+            return { success: false, message: "Lỗi kết nối!" };
+        }
+    }
 }
 
 module.exports = UserController;

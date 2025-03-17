@@ -44,6 +44,28 @@ router.get("/user/:userID", async (req, res) => {
     }
 })
 
+router.put("/user/:userID", async (req, res) => {
+    try {
+        const { userID } = req.params;
+        const userData = req.body;
+
+        const userController = new UserController();
+        const updatedUser = await userController.updateUserByID(userID, userData);
+
+        if (!updatedUser.success) {
+            return res.status(404).json({ message: updatedUser.message });
+        }
+
+        return res.status(200).json({
+            user: updatedUser.user,
+            message: updatedUser.message
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Lỗi kết nối!" });
+    }
+});
+
+
 router.post("/register", async (req, res) => {
     const user = req.body
 
