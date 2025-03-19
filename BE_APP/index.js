@@ -15,6 +15,8 @@ app.use('/api/posts', PostRouter)
 const CommentRouter = require("./routes/CommentRouter")
 app.use('/api/comments', CommentRouter)
 
+const RecipeRouter = require("./routes/RecipeRouter")
+app.use('/api/recipes', RecipeRouter)
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
