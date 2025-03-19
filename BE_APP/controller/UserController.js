@@ -108,15 +108,23 @@ class UserController {
         try {
             const userRef = db.collection("users").doc(userID);
             const userSnapshot = await userRef.get();
-
+    
             if (!userSnapshot.exists) {
                 return { success: false, message: "User không tồn tại!" };
+            }    
+            if (userData.username) {
+                const usernameQuery = await db.collection("users")
+                    .where("username", "==", userData.username)
+                    .get();
+    
+                if (!usernameQuery.empty) {
+                    return { success: false, message: "Username đã tồn tại!" };
+                }
             }
-
+    
             await userRef.update(userData);
-
             const updatedUser = await userRef.get();
-
+    
             return {
                 success: true,
                 user: {
@@ -129,6 +137,7 @@ class UserController {
             return { success: false, message: "Lỗi kết nối!" };
         }
     }
+    
 }
 
 module.exports = UserController;
