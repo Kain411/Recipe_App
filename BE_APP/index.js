@@ -18,6 +18,12 @@ app.use('/api/comments', CommentRouter)
 const RecipeRouter = require("./routes/RecipeRouter")
 app.use('/api/recipes', RecipeRouter)
 
+const RecipeIngredientRouter = require("./routes/RecipeIngredientRouter")
+app.use('/api/recipe-ingredient', RecipeIngredientRouter)
+
+const IngredientRouter = require("./routes/IngredientRouter")
+app.use('/api/ingredients', IngredientRouter)
+
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
     console.log('Server running...')
