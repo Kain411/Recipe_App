@@ -46,7 +46,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // API cập nhật công thức theo ID
-router.put("/:id", validateRecipe, async (req, res) => {
+router.put("/:id", validateRecipeUpdate, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ success: false, errors: errors.array() });
@@ -72,6 +72,18 @@ router.delete("/:id", async (req, res) => {
         return res.status(500).json({ success: false, message: "Lỗi server!" });
     }
 });
+
+//API tìm kiếm và lọc món ăn
+router.get("/search", async (req, res) => {
+    try {
+        const { name, mode, ingredient } = req.query;
+        const result = await recipeController.searchRecipe(name, mode, ingredient);
+        return res.status(result.success ? 200 : 404).json(result);
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Lỗi server!" });
+    }
+});
+
 
 router.get("/all/:userId", async (req, res) => {
     try {
