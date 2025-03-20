@@ -24,6 +24,9 @@ app.use('/api/recipe-ingredient', RecipeIngredientRouter)
 const IngredientRouter = require("./routes/IngredientRouter")
 app.use('/api/ingredients', IngredientRouter)
 
+const CartRouter = require("./routes/CartRouter")
+app.use('/api/cart', CartRouter)
+
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
     console.log('Server running...')
