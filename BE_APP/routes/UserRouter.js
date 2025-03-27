@@ -121,6 +121,8 @@ router.post("/login", async (req, res) => {
 
     user.email = user.email.trim()
 
+    console.log("Login")
+
     try {
         const userController = new UserController();
         const userRecord = await userController.getUserByEmail(user.email)

@@ -1,4 +1,4 @@
-import { initializeApp, getApp } from 'firebase/app';
+import { initializeApp, getApp, getApps } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 // Khởi tạo Firebase
@@ -11,7 +11,7 @@ const firebaseConfig = {
   appId: "1:722710798886:android:79710d468dc33cb66c3ce7"
 };
 
-const app = getApp.length ? getApp() : initializeApp(firebaseConfig);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 export { auth, signInWithEmailAndPassword }

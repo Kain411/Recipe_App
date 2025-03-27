@@ -34,7 +34,7 @@ export const AuthProvider = ({children}) => {
         }
 
         try {
-            const userCredential = await signInWithEmailAndPassword(auth, user.email, user.password);
+            // const userCredential = await signInWithEmailAndPassword(auth, user.email, user.password);
             const result = await login(user)
 
             if (result.success) {

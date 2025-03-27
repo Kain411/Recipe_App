@@ -62,10 +62,10 @@ class PostController {
         try {
             const postStore = await db.collection("posts").add(post)
 
-            return { post_id: postStore.id, message: "Thành công!" }
+            return { postID: postStore.id, message: "Thành công!" }
         }
         catch (error) {
-            return { post_id: null, message: "Lỗi kết nối!" }
+            return { postID: null, message: "Lỗi kết nối!" }
         }
     }
 }
@@ -105,9 +105,9 @@ class PostDetailsController {
 
     async postNewPostDetails(postDetail) {
         try {
-            await db.collection("post_details").add(postDetail)
+            const postDetailRef = await db.collection("post_details").add(postDetail)
 
-            return { message: "Thành công!" }
+            return { postDetailID: postDetailRef.id, message: "Thành công!" }
         }
         catch (error) {
             return { message: "Lỗi kết nối!" }

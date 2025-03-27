@@ -1,11 +1,8 @@
-import { Text, View } from "react-native"
-
+import { Text } from "react-native";
 
 const Foods = () => {
     return (
-        <View>
-            <Text>Foods Page</Text>
-        </View>
+        <Text>Foods Page</Text>
     )
 }
 

@@ -11,42 +11,12 @@ const Home = () => {
 
     const navigation = useNavigation()
 
-    const { userLogin, handleGetUserByID } = useContext(AuthContext)
-    const { handleGetAllPost, handleGetAllPostDetailsByPostID } = useContext(PostContext)
-
-    const [lstPost, setLstPost] = useState([])
+    const { userLogin } = useContext(AuthContext)
+    const { posts, handleGetAllPost } = useContext(PostContext)
 
     useEffect(() => {
         const getHome = async () => {
             const postRef = await handleGetAllPost()
-            const postDatas = postRef.posts
-
-            const getInfo = async () => {
-                const posts = []
-
-                for (const postData of postDatas) {
-                    const userID = postData.user_id
-                    const postID = postData.id
-
-                    const userRef = await handleGetUserByID(userID)
-                    const postDetailsRef = await handleGetAllPostDetailsByPostID(postID)
-
-                    const userData = userRef.user
-                    const postDetailsData = postDetailsRef.postDetails
-
-                    const post = {
-                        id: postData.id,
-                        caption: postData.caption,
-                        user: userData,
-                        post_details: postDetailsData
-                    }
-
-                    posts.push(post)
-                }
-                return posts
-            }
-            const posts = await getInfo()
-            setLstPost(posts)
         }
         getHome()
     }, [])
@@ -69,15 +39,15 @@ const Home = () => {
                     <TouchableOpacity style={[styles.center, styles.home_tool_btn]}>
                         <Image source={require("../assets/images/Bell.png")} style={styles.home_tool_icon} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.center, styles.home_tool_btn]}>
+                    <TouchableOpacity style={[styles.center, styles.home_tool_btn]} onPress={() => navigation.navigate("FoodDetail")}>
                         <Image source={require("../assets/images/Cart.png")} style={styles.home_tool_icon} />
                     </TouchableOpacity>
                 </View>                
             </View>
             {
-                lstPost.map((post, index) => {
+                posts.map((post, index) => {
                     return (
-                        <PostComponent key={index} post={post} content="Details" />
+                        <PostComponent key={index} post={post} content="Details" />    
                     )
                 })
             }

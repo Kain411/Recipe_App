@@ -1,14 +1,18 @@
-import React, { createContext } from "react";
+import React, { createContext, useState } from "react";
 import { getAllPost, getAllPostByUserID, getAllPostDetailsByPostID, postNewPost, postNewPostDetails } from "../services/PostService";
 
 export const PostContext = createContext()
 
 export const PostProvider = ({children}) => {
 
+    const [posts, setPosts] = useState([])
+
     const handleGetAllPost = async () => {
         const result = await getAllPost()
 
-        return { posts: result.posts, message: result.message }
+        setPosts(result.posts)
+
+        return { message: result.message }
     }
 
     const handleGetAllPostByUserID = async (userID) => {
@@ -17,26 +21,19 @@ export const PostProvider = ({children}) => {
         return { posts: result.posts, message: result.message }
     }
 
-    const handleGetAllPostDetailsByPostID = async (postID) => {
-        const result = await getAllPostDetailsByPostID(postID)
+    const handlePostNewPost = async (post, postDetails) => {
+        const result = await postNewPost(post, postDetails)
 
-        return { postDetails: result.postDetails, message: result.message }
-    }
-
-    const handlePostNewPost = async (post) => {
-        const result = await postNewPost(post)
-
-        return { post_id: result.post_id, message: result.message }
-    }
-
-    const handlePostNewPostDetails = async (postDetails) => {
-        const result = await postNewPostDetails(postDetails)
+        setPosts(prev => [
+            ...prev,
+            result.newPost
+        ])
 
         return { message: result.message }
     }
 
     return (
-        <PostContext.Provider value={{ handleGetAllPost, handleGetAllPostByUserID, handleGetAllPostDetailsByPostID, handlePostNewPost, handlePostNewPostDetails }}>
+        <PostContext.Provider value={{ posts, handleGetAllPost, handleGetAllPostByUserID, handlePostNewPost }}>
             {children}
         </PostContext.Provider>
     )

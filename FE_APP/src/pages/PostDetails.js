@@ -16,39 +16,15 @@ const PostDetails = () => {
     const user = post.user
     const postDetails = post.post_details || []
 
-    const { userLogin, handleGetUserByID } = useContext(AuthContext)
-    const { handleGetAllCommentByPostID, handlePostNewComment } = useContext(CommentContext)
+    const { userLogin } = useContext(AuthContext)
+    const { comments, handleGetAllCommentByPostID, handlePostNewComment } = useContext(CommentContext)
 
-    const [lstComment, setLstComment] = useState([])
     const [myComment, setMyComment] = useState("") 
     const [alert, setAlert] = useState("")
 
     useEffect(() => {
         const getComments = async () => {
             const commentRef = await handleGetAllCommentByPostID(post.id)
-            const commentDatas = commentRef.comments
-
-            const getUserOfComment = async () => {
-                const comments = []
-
-                for (const commentData of commentDatas) {
-                    const userID = commentData.user_id
-
-                    const userRef = await handleGetUserByID(userID)
-                    const userData = userRef.user
-
-                    const comment = {
-                        id: commentData.id,
-                        comment: commentData.comment,
-                        user: userData
-                    }
-
-                    comments.push(comment)
-                }
-                return comments
-            }
-            const comments = await getUserOfComment()
-            setLstComment(comments)
         }
         getComments()
     }, [])
@@ -92,7 +68,7 @@ const PostDetails = () => {
                 <View style={styles.postDetails_hr} />
                 <Text style={styles.postDetails_comment}>Bình luận</Text>
                 {
-                    lstComment.map((comment, index) => {
+                    comments.map((comment, index) => {
                         return <CommentComponent key={index} comment={comment} />
                     })
                 }

@@ -88,7 +88,7 @@ const Post = () => {
     const navigation = useNavigation()
 
     const { userLogin } = useContext(AuthContext)
-    const { handlePostNewPost, handlePostNewPostDetails } = useContext(PostContext)
+    const { posts, handlePostNewPost } = useContext(PostContext)
 
     const [caption, setCaption] = useState("")
     const [postDetails, setPostDetails] = useState([{
@@ -129,28 +129,11 @@ const Post = () => {
             caption: caption
         }
 
-        const response1 = await handlePostNewPost(post)
-        const postID = response1.post_id 
-        const message1 = response1.message
+        const response = await handlePostNewPost(post, postDetails)
+        const message = response.message
 
-        if (message1!=="Thành công!") {
-            Alert.alert("Cảnh báo", message1)
-            return
-        }
-
-        const lstPostDetails = []
-        for (const onePostDetails of postDetails) {
-            lstPostDetails.push({
-                ...onePostDetails,
-                post_id: postID
-            })
-        }
-
-        const response2 = await handlePostNewPostDetails(lstPostDetails)
-        const message2 = response2.message
-
-        Alert.alert("Cảnh báo", message2)
-        if (message2!=="Thành công!") {
+        Alert.alert("Cảnh báo", message)
+        if (message!=="Thành công!") {
             return
         }
 

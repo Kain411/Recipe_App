@@ -27,6 +27,7 @@ export const register = async (user) => {
 
 export const login = async (user) => {
     try {
+        console.log("Login")
         const response = await fetch(`${API_URL}/login`, {
             method: "POST",
             headers: {

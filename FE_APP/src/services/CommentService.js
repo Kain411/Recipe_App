@@ -38,7 +38,7 @@ export const postNewComment = async (userID, postID, comment) => {
             return { message: data.message }
         }
         
-        return { message: data.message }
+        return { newComment: data.newComment, message: data.message }
     }
     catch (error) {
         return { message: "Lỗi kết nối!" }

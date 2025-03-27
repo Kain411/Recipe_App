@@ -41,9 +41,9 @@ class CommentController {
                 comment: commment
             }
 
-            await db.collection("comments").add(commentStore);
-
-            return { message: "Thành công!" }
+            const commentRef = await db.collection("comments").add(commentStore);
+            
+            return { commentID: commentRef.id, message: "Thành công!" }
         }
         catch (error) {
             return { message: "Lỗi kết nối!" }

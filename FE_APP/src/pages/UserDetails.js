@@ -24,30 +24,7 @@ const UserDetails = () => {
     useEffect(() => {
         const getUserPosts = async () => {
             const postRef = await handleGetAllPostByUserID(user.id)
-            const postDatas = postRef.posts
-
-            const getInfo = async () => {
-                const posts = []
-
-                for (const postData of postDatas) {
-                    const postID = postData.id;
-
-                    const postDetailsRef = await handleGetAllPostDetailsByPostID(postID)
-                    const postDetailsData = postDetailsRef.postDetails
-
-                    const post = {
-                        id: postData.id,
-                        caption: postData.caption,
-                        user: user,
-                        post_details: postDetailsData
-                    }
-
-                    posts.push(post)
-                }
-                return posts
-            }
-            const posts = await getInfo()
-            setLstPost(posts)
+            setLstPost(postRef.posts)
         }
         getUserPosts()
     }, [])
