@@ -1,79 +1,71 @@
-import {React} from "react";
+import {React, useContext} from "react";
 import { View, Text, Image, Dimensions, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { AuthContext } from "../context/AuthContext";
 
 const ws = Dimensions.get("screen").width / 440;
 
 const User = () => {
   const navigation = useNavigation()
 
+  const { userLogin } = useContext(AuthContext)
+
   return (
     <View style={styles.home_container}>
-      {/* Header */}
-      {/* <View style={styles.header}>
-        <Text style={styles.appName}>App Name</Text>
-        <View style={styles.headerBottom}>
-          <View style={styles.userInfo}>
-            <Image source={require("../assets/images/asa.jpg")} style={styles.avatar} />
-            <Text style={styles.username}>Username</Text>
-          </View>
-          <View style={styles.headerIcons}>
-            <TouchableOpacity>
-            <Image source={require("../assets/images/Bell.png")} style={styles.icon} />
-            </TouchableOpacity>
-            <Image source={require("../assets/images/Cart.png")} style={styles.icon} />
-          </View>
-        </View>
-      </View> */}
       <Text style={styles.app_name}>App Name</Text>
       <View style={[styles.center_y, styles.home_user_tool]}>
-        <TouchableOpacity
-          style={styles.center_y}
-          onPress={() => navigation.navigate("UserDetails")}
+        <TouchableOpacity 
+            style={styles.center_y}
+            onPress={() => navigation.navigate("UserDetails", { user: userLogin })}
         >
-          <Image source={require("../assets/images/asa.jpg")} style={styles.home_user_img} />
-          <Text style={styles.home_user_name}>Username</Text>
-        </TouchableOpacity>
+            <Image source={{uri: userLogin.url}} style={styles.home_user_img} /> 
+            <Text style={styles.home_user_name}>{userLogin.username}</Text>
+        </TouchableOpacity>                
         <View style={styles.center_y}>
-          <TouchableOpacity style={[styles.center, styles.home_tool_btn]}>
-            <Image source={require("../assets/images/Bell.png")} style={styles.home_tool_icon} />
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.center, styles.home_tool_btn]} onPress={() => navigation.navigate("Cart")}>
-            <Image source={require("../assets/images/Cart.png")} style={styles.home_tool_icon} />
-            
-          </TouchableOpacity>
-        </View>
-      </View>
+            <TouchableOpacity style={[styles.center, styles.home_tool_btn]}>
+                <Image source={require("../assets/images/Bell.png")} style={styles.home_tool_icon} />
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.center, styles.home_tool_btn]} onPress={() => navigation.navigate("Cart")}>
+                <Image source={require("../assets/images/Cart.png")} style={styles.home_tool_icon} />
+            </TouchableOpacity>
+        </View>                
+                  </View>
 
-      {/* Statistics */}
       <View style={styles.statistics}>
-        {[
-          { icon: require("../assets/images/heart_user.png"), number: 13, label: "Yêu thích" },
-          { icon: require("../assets/images/news_user.png"), number: 13, label: "Tin tức" },
-          { icon: require("../assets/images/recipe_user.png"), number: 13, label: "Công thức" },
-          { icon: require("../assets/images/ship_user.png"), number: 13, label: "Giao hàng" },
-        ].map((stat, index) => (
-          <View key={index} style={styles.statCard}>
-            <Image source={stat.icon} style={styles.statIcon} />
-            <View>
-              <Text style={styles.statNumber}>{stat.number}</Text>
-              <Text style={styles.statLabel}>{stat.label}</Text>
-            </View>
+        <TouchableOpacity style={styles.statCard} onPress={() => navigation.navigate("Favorite")}>
+          <Image source={require("../assets/images/heart_user.png")} style={styles.statIcon} />
+          <View>
+            <Text style={styles.statNumber}>13</Text>
+            <Text style={styles.statLabel}>Yêu thích</Text>
           </View>
-        ))}
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.statCard} onPress={() => navigation.navigate("UserDetails", { user: userLogin })}>
+          <Image source={require("../assets/images/news_user.png")} style={styles.statIcon} />
+          <View>
+            <Text style={styles.statNumber}>13</Text>
+            <Text style={styles.statLabel}>Bài đăng</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.statCard} onPress={() => navigation.navigate("UserDetails", { user: userLogin })}>
+          <Image source={require("../assets/images/recipe_user.png")} style={styles.statIcon} />
+          <View>
+            <Text style={styles.statNumber}>13</Text>
+            <Text style={styles.statLabel}>Công thức</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.statCard}>
+          <Image source={require("../assets/images/ship_user.png")} style={styles.statIcon} />
+          <View>
+            <Text style={styles.statNumber}>13</Text>
+            <Text style={styles.statLabel}>Vận chuyển</Text>
+          </View>
+        </TouchableOpacity>
       </View>
       <ScrollView style={styles.menuContainer}>
-        {/* {[
-          { icon: require("../assets/images/updated_user.png"), label: "Chỉnh sửa trang cá nhân" },
-          { icon: require("../assets/images/private.png"), label: "Quyền riêng tư và bảo vệ" },
-        ].map((item, index) => (
-          <TouchableOpacity key={index} style={styles.menuItem}>
-            <Image source={item.icon} style={styles.menuIcon} />
-            <Text style={styles.menuText}>{item.label}</Text>
-          </TouchableOpacity>
-
-        ))} */}
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate("UserUpdated")}>
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate("UserUpdated", { userId: userLogin.id })}>
             <Image source={require("../assets/images/updated_user.png")} style={styles.menuIcon} />
             <Text style={styles.menuText}>Chỉnh sửa trang cá nhân</Text>
           </TouchableOpacity>
@@ -111,7 +103,8 @@ const styles = StyleSheet.create({
   app_name: {
     fontSize: 25,
     color: '#307F85',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    marginTop: ws*20,
   },
   home_user_tool: {
     marginVertical: ws * 20,

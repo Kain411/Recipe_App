@@ -111,8 +111,10 @@ class UserController {
     
             if (!userSnapshot.exists) {
                 return { success: false, message: "User không tồn tại!" };
-            }    
-            if (userData.username) {
+            }
+    
+            // Kiểm tra username trùng lặp
+            if (userData.username !== userSnapshot.data().username) {
                 const usernameQuery = await db.collection("users")
                     .where("username", "==", userData.username)
                     .get();
@@ -122,6 +124,18 @@ class UserController {
                 }
             }
     
+            // Kiểm tra email trùng lặp
+            if (userData.email !== userSnapshot.data().email) {
+                const emailQuery = await db.collection("users")
+                    .where("email", "==", userData.email)
+                    .get();
+    
+                if (!emailQuery.empty) {
+                    return { success: false, message: "Email đã tồn tại!" };
+                }
+            }
+    
+            // Cập nhật thông tin user
             await userRef.update(userData);
             const updatedUser = await userRef.get();
     
@@ -136,8 +150,7 @@ class UserController {
         } catch (error) {
             return { success: false, message: "Lỗi kết nối!" };
         }
-    }
-    
+    }    
 }
 
 module.exports = UserController;

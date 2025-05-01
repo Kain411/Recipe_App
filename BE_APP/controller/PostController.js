@@ -30,6 +30,26 @@ class PostController {
             }
         }
     }
+
+    async getPostByID(postID) {
+        try {
+            const postRef = await db.collection("posts").doc(postID).get()
+
+            return {
+                post: {
+                    id: postRef.id,
+                    ...postRef.data()
+                },
+                message: "Tìm thấy user!"
+            };
+        }
+        catch (error) {
+            return {
+                post: null,
+                message: "Lỗi kết nối!"
+            }
+        }
+    }
     
     async getAllPostByUserID(userID) {
         try {

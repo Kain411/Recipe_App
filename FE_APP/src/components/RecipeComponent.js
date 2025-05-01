@@ -1,34 +1,53 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Dimensions, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { AuthContext } from "../context/AuthContext";
+import { FavoriteContext } from "../context/FavoriteContext";
+import { useNavigation } from "@react-navigation/native";
 
 const ws = Dimensions.get('screen').width / 440
 
 
-const RecipeComponent = () => {
+const RecipeComponent = ({recipe}) => {
 
+    const { userLogin } = useContext(AuthContext)
+    const { handleGetFavoriteByIDs, handlePostFavoriteByIDs, handleDeleteFavoriteByIDs } = useContext(FavoriteContext)
+
+    const navigation = useNavigation()
     const [favorite, setFavorite] = useState(false)
 
-    const handleClickFavorite = (event) => {
+    useEffect(() => {
+        const getFavorite = async () => {
+            const result = await handleGetFavoriteByIDs(userLogin.id, recipe.id, "Recipe")
+            setFavorite(result.favorite)
+        }
+        getFavorite()
+    }, [])
+
+    const handleClickFavorite = async (event) => {
         event.stopPropagation()
+        if (favorite) await handleDeleteFavoriteByIDs(userLogin.id, recipe.id, "Recipe")
+        else await handlePostFavoriteByIDs(userLogin.id, recipe.id, "Recipe")
         setFavorite(!favorite)
     }
 
+    console.log(favorite)
+
     return (
-        <ImageBackground source={require("../assets/images/food.jpg")} style={styles.recipeComponent_bg} resizeMode="cover" imageStyle={{ borderRadius: 15 }}>
-            <TouchableOpacity style={styles.recipeComponent_container}>
+        <ImageBackground source={{uri: recipe.thumbnail}} style={styles.recipeComponent_bg} resizeMode="cover" imageStyle={{ borderRadius: 15 }}>
+            <TouchableOpacity style={styles.recipeComponent_container} onPress={() => navigation.navigate('FoodDetail', { food: recipe })} >
                 <TouchableOpacity 
                     style={[styles.center, styles.recipeComponent_btn_favorite]}
                     onPress={handleClickFavorite}
                 >
-                    <Image source={require("../assets/images/Heart.png")} style={{...styles.recipeComponent_icon_heart, tintColor: favorite ? '#D9D9D9' : '#FFC7ED'}} />
+                    <Image source={require("../assets/images/Heart.png")} style={{...styles.recipeComponent_icon_heart, tintColor: favorite ? '#307F85' : '#D9D9D9'}} />
                 </TouchableOpacity>
                 <View style={styles.recipeComponent_recipe_user}>
-                    <Text style={styles.recipeComponent_recipe_name}>Nem nướng Nha Trang</Text>
-                    <Text style={styles.recipeComponent_user_name}>Bởi: Enami Asa</Text>
+                    <Text style={styles.recipeComponent_recipe_name}>{recipe.name}</Text>
+                    <Text style={styles.recipeComponent_user_name}>Bởi: {recipe.user.username}</Text>
                 </View>
                 <View style={[styles.center_y, styles.recipeComponent_time]}>
                     <Image source={require("../assets/images/Hourglass.png")} style={styles.recipeComponent_icon_hourglass} />
-                    <Text style={styles.recipeComponent_time_info}>20 phút</Text>
+                    <Text style={styles.recipeComponent_time_info}>{recipe.totalTime} phút</Text>
                 </View>
             </TouchableOpacity>
         </ImageBackground>

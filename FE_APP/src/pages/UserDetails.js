@@ -5,6 +5,7 @@ import PostComponent from "../components/PostComponent";
 import RecipeComponent from "../components/RecipeComponent";
 import { AuthContext } from "../context/AuthContext";
 import { PostContext } from "../context/PostContext";
+import { RecipeContext } from "../context/RecipeContext";
 
 const ws = Dimensions.get('screen').width / 440
 
@@ -15,10 +16,12 @@ const UserDetails = () => {
     const route = useRoute()
     const { user } = route.params || {}
     const { userLogin } = useContext(AuthContext)
+    const { recipes } = useContext(RecipeContext)
     const { handleGetAllPostByUserID, handleGetAllPostDetailsByPostID } = useContext(PostContext)
 
     const [click, setClick] = useState(false)
     const [active, setActive] = useState(true)
+
     const [lstPost, setLstPost] = useState([])
 
     useEffect(() => {
@@ -127,10 +130,13 @@ const UserDetails = () => {
                     </View> 
                     :
                     <View style={styles.userDetails_list}>
-                        <RecipeComponent />
-                        <RecipeComponent />
-                        <RecipeComponent />
-                        <RecipeComponent />
+                        {
+                            recipes.map((recipe, index) => {
+                                if (recipe.user.id==userLogin.id) {
+                                    return <RecipeComponent key={index} recipe={recipe} />
+                                }
+                            })
+                        }
                     </View> 
                 }
             </View>

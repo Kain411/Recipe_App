@@ -1,5 +1,5 @@
-import { useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import {useNavigation} from '@react-navigation/native';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   Alert,
   Dimensions,
@@ -14,67 +14,69 @@ import {
 } from 'react-native';
 import ReviewDetails from './include/ReviewDetails';
 import RecipeComment from './include/RecipeComment';
-import { ReviewContext } from '../context/ReviewContext';
-import { AuthContext } from "../context/AuthContext";
+import {ReviewContext} from '../context/ReviewContext';
+import {AuthContext} from '../context/AuthContext';
 import Share from 'react-native-share';
-import Mailer from "react-native-mail"
+import Mailer from 'react-native-mail';
 import RNFS from 'react-native-fs';
-// import Ingredient from '../components/Ingredient';
-// import Instruction from '../components/Instruction';
+import IngredientComponent from '../components/IngredientComponent';
+import InstructionComponent from '../components/InstructionComponent';
+import { FavoriteContext } from '../context/FavoriteContext';
 
 const ws = Dimensions.get('screen').width / 440;
 
-const FoodDetail = ({ route }) => {
-  // const {food} = route.params;
-  const navigation = useNavigation()
-  const { userLogin } = useContext(AuthContext)
-  const { reviews, handleGetAllReviewByRecipeID, handlePostNewReview } = useContext(ReviewContext)
+const FoodDetail = ({route}) => {
+  const {food} = route.params;
+  const navigation = useNavigation();
+  const { userLogin } = useContext(AuthContext);
+  const { reviews, handleGetAllReviewByRecipeID, handlePostNewReview } = useContext(ReviewContext);
+  const { handleGetFavoriteByIDs, handlePostFavoriteByIDs, handleDeleteFavoriteByIDs } = useContext(FavoriteContext)
 
-  const [rating, setRating] = useState(0)
-  const [comment, setComment] = useState("")
-  const [ratingTemp, setRatingTemp] = useState(0)
-  const [display, setDisplay] = useState(false)
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [ratingTemp, setRatingTemp] = useState(0);
+  const [display, setDisplay] = useState(false);
+  const [favorite, setFavorite] = useState(false)
 
-  const [recipe, setRecipe] = useState({
-    id: "zlMS2uqX3afEbfDeg8Gt"
-  })
+  useEffect(() => {
+    const getFavorite = async () => {
+      const result = await handleGetFavoriteByIDs(userLogin.id, food.id, "Recipe")
+      setFavorite(result.favorite)
+    }
+    getFavorite()
+  }, [])
+
+  const handleFavorite = async () => {
+    if (favorite) await handleDeleteFavoriteByIDs(userLogin.id, food.id, "Recipe")
+    else await handlePostFavoriteByIDs(userLogin.id, food.id, "Recipe")
+    setFavorite(!favorite)
+  }
 
   useEffect(() => {
     const getReviews = async () => {
-      const reviewsRef = await handleGetAllReviewByRecipeID(recipe.id)
-      console.log(reviewsRef)
-    }
-    getReviews()
-  }, [handleSubmit])
+      const reviewsRef = await handleGetAllReviewByRecipeID(food.id);
+      console.log(reviewsRef);
+    };
+    getReviews();
+  }, [handleSubmit]);
 
   const handleSubmit = async () => {
-    const result = await handlePostNewReview(userLogin, recipe, comment, rating)
-    Alert.alert("Cảnh báo", result.message)
-    setRating(0)
-    setComment("")
-  }
-
+    const result = await handlePostNewReview(
+      userLogin,
+      food,
+      comment,
+      rating,
+    );
+    Alert.alert('Cảnh báo', result.message);
+    setRating(0);
+    setComment('');
+  };
 
   const [selectedTab, setSelectedTab] = useState('instruction');
-  const [option, setOption] = useState(false)
-
-  const [food, setFood] = useState({
-    name: "Trung xot ca chua",
-    description: "jsvjs",
-    carbs: 87,
-    url: "https://www.youtube.com/watch?v=kzum5w6AtNQ",
-    protein: 90,
-    calories: 90,
-    fat: 76,
-    creator: {
-      name: "sknlvs",
-      avatar: "https://tse4.mm.bing.net/th?id=OIP.3uHe0VE9RXivI7N0Pb7LRAHaEK&pid=Api&P=0&h=220"
-    }
-  })
+  const [option, setOption] = useState(false);
 
   const onShare = async () => {
-
-    const youtubeId = food.url.split("?v=")[1];
+    const youtubeId = food.url.split('?v=')[1];
     const youtubeUrl = `https://www.youtube.com/watch?v=${youtubeId}`;
     const thumbnailUrl = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
 
@@ -93,7 +95,7 @@ const FoodDetail = ({ route }) => {
           message: `📺 Xem video này trên YouTube: ${youtubeUrl}`,
           urls: [`file://${localFile}`],
         });
-        Alert.alert('Thành công', 'Chia sẻ công thức thành công')
+        Alert.alert('Thành công', 'Chia sẻ công thức thành công');
       } else {
         Alert.alert('Lỗi', 'Không thể tải ảnh về thiết bị.');
       }
@@ -131,58 +133,86 @@ const FoodDetail = ({ route }) => {
       </View>
 
       {/* Option Share and Favorite */}
-      {
-        option &&
+      {option && (
         <View style={styles.food_detail_option}>
           <TouchableOpacity
-            style={[styles.center, styles.center_y, styles.food_detail_option_btn]}
-            onPress={onShare}
-          >
-            <Image source={require("../assets/images/Share.png")} style={styles.food_detail_option_icon} />
+            style={[
+              styles.center,
+              styles.center_y,
+              styles.food_detail_option_btn,
+            ]}
+            onPress={onShare}>
+            <Image
+              source={require('../assets/images/Share.png')}
+              style={styles.food_detail_option_icon}
+            />
             <Text style={styles.food_detail_option_content}>Chia sẻ</Text>
           </TouchableOpacity>
           <View style={styles.food_detail_option_hr}></View>
-          <TouchableOpacity style={[styles.center, styles.center_y, styles.food_detail_option_btn]}>
-            <Image source={require("../assets/images/Heart.png")} style={styles.food_detail_option_icon} />
-            <Text style={styles.food_detail_option_content}>Yêu thích</Text>
+          <TouchableOpacity
+            style={[
+              styles.center,
+              styles.center_y,
+              styles.food_detail_option_btn,
+            ]}
+            onPress={handleFavorite}
+          >
+            {
+              favorite ? 
+              <Image
+                source={require('../assets/images/Heart.png')}
+                style={{...styles.food_detail_option_icon, tintColor: favorite ? '#307F85' : '#000000'}}
+              /> 
+              : 
+              <Image
+                source={require('../assets/images/Heart.png')}
+                style={styles.food_detail_option_icon}
+              />
+            }
+            <Text style={{...styles.food_detail_option_content, color: favorite ? "#307F85" : "#000000"}}>Yêu thích</Text>
           </TouchableOpacity>
         </View>
-      }
+      )}
 
       {/* Detail */}
       <ScrollView style={styles.food_detail_container}>
-        {/* Tên món ăn */}
+        {/* Tên món ăn + mô tả */}
         <Text style={styles.food_name}>{food.name}</Text>
         <Text style={styles.food_description}>{food.description}</Text>
 
         {/* Thông tin dinh dưỡng */}
-
         <View style={styles.nutrition_container}>
           <Text style={styles.nutrition_title}>Thông tin dinh dưỡng</Text>
           <View style={styles.nutrition_item}>
             <Image
               source={require('../assets/images/Carbs.png')}
               style={styles.nutrition_icon}></Image>
-            <Text style={styles.nutrition_text}>{food.carbs}g tinh bột</Text>
+            <Text style={styles.nutrition_text}>
+              {food.totalCarbs}g tinh bột
+            </Text>
           </View>
           <View style={styles.nutrition_item}>
             <Image
               source={require('../assets/images/Proteins.png')}
               style={styles.nutrition_icon}></Image>
-            <Text style={styles.nutrition_text}>{food.protein}g chất đạm</Text>
+            <Text style={styles.nutrition_text}>
+              {food.totalProtein}g chất đạm
+            </Text>
           </View>
           <View style={styles.nutrition_item}>
             <Image
               source={require('../assets/images/Calories.png')}
               style={styles.nutrition_icon}></Image>
-            <Text style={styles.nutrition_text}>{food.calories}g Kcal</Text>
+            <Text style={styles.nutrition_text}>
+              {food.totalCalories}g kcal
+            </Text>
           </View>
           <View style={styles.nutrition_item}>
             <Image
               source={require('../assets/images/Fats.png')}
               style={styles.nutrition_icon}></Image>
-            <Text style={styles.nutrition_text}>{food.fat}g chất béo</Text>
-          </View>    
+            <Text style={styles.nutrition_text}>{food.totalFat}g chất béo</Text>
+          </View>
         </View>
 
         {/* Thanh chọn tab */}
@@ -217,14 +247,27 @@ const FoodDetail = ({ route }) => {
           </TouchableOpacity>
         </View>
 
+        {/* Nội dung dựa trên tab được chọn */}
+        <View style={styles.content_container}>
+          {selectedTab === 'ingredient' ? (
+            <IngredientComponent
+              ingredients={food.recipe_ingredients}
+              foodID={food.id}
+            />
+          ) : (
+            <InstructionComponent url={food.url} steps={food.steps} />
+            // <IngredientComponent ingredients={food.ingredients} />
+          )}
+        </View>
+
         <View style={styles.separator} />
 
         {/* Nhà sáng tạo */}
-        <View style={styles.creatorContainer}>
+        {/* <View style={styles.creatorContainer}>
           <Text style={styles.creatorTitle}>Nhà sáng tạo</Text>
           <View style={styles.infoContainer}>
             <Image
-              source={{ uri: food.creator.avatar }}
+              source={{uri: food.creator.avatar}}
               style={styles.creator_avatar}
             />
             <View>
@@ -234,7 +277,7 @@ const FoodDetail = ({ route }) => {
               </Text>
             </View>
           </View>
-        </View>
+        </View> */}
 
         {/* Đánh giá */}
         <View style={styles.reviewContainer}></View>
@@ -243,17 +286,27 @@ const FoodDetail = ({ route }) => {
       <View style={styles.recipe_evaluated}>
         <View style={styles.center_y}>
           <Text style={styles.recipe_details_user_comment}>Đánh giá</Text>
-          <TouchableOpacity style={styles.center_y} onPress={() => setDisplay(true)}>
-            {
-              Array.from({ length: rating }, (_, i) => {
-                return <Image key={i} source={require('../assets/images/Star_Checked.png')} style={styles.recipe_comment_evaluate_star} />
-              })
-            }
-            {
-              Array.from({ length: 5 - rating }, (_, i) => {
-                return <Image key={i} source={require("../assets/images/Star_Unchecked.png")} style={styles.recipe_comment_evaluate_star} />
-              })
-            }
+          <TouchableOpacity
+            style={styles.center_y}
+            onPress={() => setDisplay(true)}>
+            {Array.from({length: rating}, (_, i) => {
+              return (
+                <Image
+                  key={i}
+                  source={require('../assets/images/Star_Checked.png')}
+                  style={styles.recipe_comment_evaluate_star}
+                />
+              );
+            })}
+            {Array.from({length: 5 - rating}, (_, i) => {
+              return (
+                <Image
+                  key={i}
+                  source={require('../assets/images/Star_Unchecked.png')}
+                  style={styles.recipe_comment_evaluate_star}
+                />
+              );
+            })}
           </TouchableOpacity>
         </View>
         <View style={[styles.center_y, styles.recipe_details_review]}>
@@ -261,67 +314,79 @@ const FoodDetail = ({ route }) => {
             placeholder="Viết bình luận"
             style={styles.recipe_details_review_input}
             value={comment}
-            onChangeText={(text) => setComment(text)}
+            onChangeText={text => setComment(text)}
           />
           <TouchableOpacity
             style={[styles.center, styles.recipe_details_btn]}
-            onPress={handleSubmit}
-          >
+            onPress={handleSubmit}>
             <Text style={styles.recipe_details_btn_content}>Gửi</Text>
           </TouchableOpacity>
         </View>
       </View>
-      {
-        display &&
-        <View style={[styles.center, styles.recipe_details_star]} >
+      {display && (
+        <View style={[styles.center, styles.recipe_details_star]}>
           <View style={[styles.center, styles.recipe_details_star_check]}>
-            <Text style={styles.recipe_details_star_title}>Mời chọn số sao</Text>
+            <Text style={styles.recipe_details_star_title}>
+              Mời chọn số sao
+            </Text>
             <View style={[styles.center_y, styles.recipe_details_star_btn]}>
-              {
-                Array.from({ length: ratingTemp }, (_, i) => {
-                  return (
-                    <TouchableOpacity key={i} onPress={() => setRatingTemp(i + 1)} >
-                      <Image source={require('../assets/images/Star_Checked.png')} style={styles.recipe_details_evaluate_star} />
-                    </TouchableOpacity>
-                  )
-                })
-              }
-              {
-                Array.from({ length: 5 - ratingTemp }, (_, i) => {
-                  return (
-                    <TouchableOpacity key={i} onPress={() => setRatingTemp(ratingTemp + i + 1)} >
-                      <Image source={require('../assets/images/Star_Unchecked.png')} style={styles.recipe_details_evaluate_star} />
-                    </TouchableOpacity>
-                  )
-                })
-              }
+              {Array.from({length: ratingTemp}, (_, i) => {
+                return (
+                  <TouchableOpacity
+                    key={i}
+                    onPress={() => setRatingTemp(i + 1)}>
+                    <Image
+                      source={require('../assets/images/Star_Checked.png')}
+                      style={styles.recipe_details_evaluate_star}
+                    />
+                  </TouchableOpacity>
+                );
+              })}
+              {Array.from({length: 5 - ratingTemp}, (_, i) => {
+                return (
+                  <TouchableOpacity
+                    key={i}
+                    onPress={() => setRatingTemp(ratingTemp + i + 1)}>
+                    <Image
+                      source={require('../assets/images/Star_Unchecked.png')}
+                      style={styles.recipe_details_evaluate_star}
+                    />
+                  </TouchableOpacity>
+                );
+              })}
             </View>
             <View style={[styles.center_y, styles.recipe_details_star_tool]}>
               <TouchableOpacity
                 onPress={() => {
-                  setRatingTemp(0)
-                  setDisplay(false)
+                  setRatingTemp(0);
+                  setDisplay(false);
                 }}
-                style={[styles.center, styles.recipe_details_star_tool_btn]}
-              >
-                <Text style={styles.recipe_details_star_tool_content}>Cancel</Text>
+                style={[styles.center, styles.recipe_details_star_tool_btn]}>
+                <Text style={styles.recipe_details_star_tool_content}>
+                  Cancel
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  setRating(ratingTemp)
-                  setRatingTemp(0)
-                  setDisplay(false)
+                  setRating(ratingTemp);
+                  setRatingTemp(0);
+                  setDisplay(false);
                 }}
-                style={[styles.center, styles.recipe_details_star_tool_btn]}
-              >
-                <Text style={{ ...styles.recipe_details_star_tool_content, color: 'red' }}>OK</Text>
+                style={[styles.center, styles.recipe_details_star_tool_btn]}>
+                <Text
+                  style={{
+                    ...styles.recipe_details_star_tool_content,
+                    color: 'red',
+                  }}>
+                  OK
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
-      }
+      )}
     </View>
-  )
+  );
 };
 
 export default FoodDetail;
@@ -343,13 +408,13 @@ const styles = StyleSheet.create({
     height: ws * 30,
   },
   icon: {
-    width: ws *20,
+    width: ws * 20,
     height: ws * 20,
     objectFit: 'contain',
   },
   food_detail_container: {
     paddingTop: ws * 10,
-    marginBottom: ws * 120
+    marginBottom: ws * 120,
   },
   food_name: {
     fontSize: 26,
@@ -373,6 +438,7 @@ const styles = StyleSheet.create({
   nutrition_title: {
     fontSize: 18,
     fontWeight: 'bold',
+    paddingRight: 30,
   },
   nutrition_item: {
     width: '46%',
@@ -480,7 +546,7 @@ const styles = StyleSheet.create({
   },
   food_detail_option_content: {
     fontSize: 16,
-    color: '#000000'
+    color: '#000000',
   },
   food_detail_option_hr: {
     borderWidth: 0.5,
@@ -514,7 +580,7 @@ const styles = StyleSheet.create({
     fontSize: ws * 18,
     fontWeight: '500',
     marginVertical: ws * 10,
-    marginRight: ws * 10
+    marginRight: ws * 10,
   },
   recipe_comment_evaluate_star: {
     width: ws * 16,
@@ -538,7 +604,7 @@ const styles = StyleSheet.create({
     width: ws * 100,
     height: ws * 55,
     backgroundColor: '#307F85',
-    borderRadius: 15
+    borderRadius: 15,
   },
   recipe_details_btn_content: {
     color: '#ffffff',
@@ -560,7 +626,7 @@ const styles = StyleSheet.create({
   },
   recipe_details_star_title: {
     fontSize: ws * 18,
-    fontWeight: '500'
+    fontWeight: '500',
   },
   recipe_details_star_btn: {
     marginTop: ws * 20,
@@ -570,7 +636,7 @@ const styles = StyleSheet.create({
   recipe_details_evaluate_star: {
     width: ws * 30,
     height: ws * 30,
-    objectFit: 'contain'
+    objectFit: 'contain',
   },
   recipe_details_star_tool: {
     width: ws * 250,

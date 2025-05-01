@@ -21,8 +21,20 @@ app.use('/api/recipes', RecipeRouter)
 const IngredientRouter = require("./routes/IngredientRouter")
 app.use('/api/ingredients', IngredientRouter)
 
+const CartRouter = require("./routes/CartRouter")
+app.use('/api/cart', CartRouter)
+
 const ReviewRouter = require("./routes/ReviewRouter")
 app.use('/api/reviews', ReviewRouter)
+
+const FavoriteRouter = require("./routes/FavoriteRouter")
+app.use('/api/favorites', FavoriteRouter)
+
+const OrderRouter = require("./routes/OrderRouter")
+app.use('/api/order', OrderRouter)
+
+const UploadRouter = require("./utils")
+app.use('/api/upload', UploadRouter)
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => {

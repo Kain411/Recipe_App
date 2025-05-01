@@ -18,8 +18,10 @@ const RecipeCommentComponent = ({item}) => {
                         }
                         {
                             Array.from({length: 5-item.rating}, (_, i) => {
-                                return <Image key={i} source={require("../../assets/images/Star_Unchecked.png")} style={styles.recipe_comment_evaluate_star} />
-                            })
+                                if (item.rating!=0) {
+                                    return <Image key={i} source={require("../../assets/images/Star_Unchecked.png")} style={styles.recipe_comment_evaluate_star} />
+                                }
+                             })
                         }
                     </View>
                 </View>

@@ -1,41 +1,57 @@
 import { useNavigation } from "@react-navigation/native";
 import { useState, useEffect, useContext } from "react";
-import { 
-  Dimensions, 
-  Image, 
-  ScrollView, 
-  StyleSheet, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  View, 
-  ImageBackground,
-  Alert
-} from "react-native";
+import {Dimensions, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, ImageBackground, Alert} from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-native-date-picker";
-import { AuthContext } from "../context/AuthContext";
-
+import {getUserByID} from "../services/AuthService"
+import { HostURL } from "../services/Host"
+import { launchImageLibrary } from 'react-native-image-picker';
+const API_URL = `${HostURL}/users/user`
 const { width } = Dimensions.get('screen');
 const ws = width / 440;
 
 const UserUpdated = ({ route }) => {
   const navigation = useNavigation();
-  const { userLogin } = useContext(AuthContext)
-  console.log(userLogin)
-  
-  // Form setup with react-hook-form
-  const { control, handleSubmit, setValue } = useForm({
+  const { userId } = route.params;
+
+  const [userLogin, setUserLogin] = useState(null);
+  const [gender, setGender] = useState('');
+  const [date, setDate] = useState(new Date());
+  const [open, setOpen] = useState(false);
+  const [profileImage, setProfileImage] = useState('');
+  const [backgroundImage, setBackgroundImage] = useState('');
+
+  const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
-      name: userLogin?.name || "",
-      username: userLogin?.username || "",
-      phone: userLogin?.phone || "",
-      location: userLogin?.location || ""
+      email: "",
+      username: "",
+      phone: "",
+      location: "",
     }
   });
-  
-  // State management
-  const [gender, setGender] = useState(userLogin?.gender || "male");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const result = await getUserByID(userId);
+      console.log(result.user)
+      if (result.user) {
+        setUserLogin(result.user);
+        reset({
+          email: result.user.email || "",
+          username: result.user.username || "",
+          phone: result.user.phone || "",
+          location: result.user.location || "",
+        });
+        setGender(result.user.gender || "");
+        setDate(parseDate(result.user.dob));
+        setProfileImage(result.user.url || "");
+        setBackgroundImage(result.user.bg_url || "");
+      } else {
+        console.error("Không thể tải dữ liệu người dùng");
+      }
+    };
+    fetchUser();
+  }, [userId]);
   const parseDate = (dob) => {
     if (!dob) return new Date();
     const parts = dob.split("/");
@@ -45,86 +61,98 @@ const UserUpdated = ({ route }) => {
     }
     return new Date();
   };
-  
-  const [date, setDate] = useState(parseDate(userLogin?.dob));
-  const [open, setOpen] = useState(false);
-  const [profileImage, setProfileImage] = useState(userLogin?.url || "");
-  const [backgroundImage, setBackgroundImage] = useState(userLogin?.bg_url || "");
-  
-  // Function to select profile image
-  const selectProfileImage = async () => {
-    // This is a placeholder - implement based on your image picker library
-    Alert.alert(
-      "Chọn ảnh đại diện",
-      "Chọn nguồn ảnh",
-      [
-        { 
-          text: "Máy ảnh", 
-          onPress: () => console.log("Camera option selected")
-          // In actual implementation:
-          // onPress: () => openCamera({ mediaType: 'photo', width: 300, height: 300 })
-          //   .then(image => setProfileImage(image.path))
-        },
-        {
-          text: "Thư viện ảnh", 
-          onPress: () => console.log("Gallery option selected")
-          // In actual implementation:
-          // onPress: () => openGallery({ mediaType: 'photo', width: 300, height: 300 })
-          //   .then(image => setProfileImage(image.path))
-        },
-        { 
-          text: "Hủy", 
-          style: "cancel" 
-        }
-      ]
-    );
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
   };
-  
-  // Function to select background image
-  const selectBackgroundImage = async () => {
-    // This is a placeholder - implement based on your image picker library
-    Alert.alert(
-      "Chọn ảnh bìa",
-      "Chọn nguồn ảnh",
-      [
-        { 
-          text: "Máy ảnh", 
-          onPress: () => console.log("Camera option selected")
-          // In actual implementation:
-          // onPress: () => openCamera({ width: 800, height: 400 })
-          //   .then(image => setBackgroundImage(image.path))
-        },
-        {
-          text: "Thư viện ảnh", 
-          onPress: () => console.log("Gallery option selected")
-          // In actual implementation:
-          // onPress: () => openGallery({ width: 800, height: 400 })
-          //   .then(image => setBackgroundImage(image.path))
-        },
-        { 
-          text: "Hủy", 
-          style: "cancel" 
-        }
-      ]
-    );
-  };
-  
   // Handle form submission
-  const onSubmit = (data) => {
-    const updatedUser = {
-      ...userLogin,
-      ...data,
-      gender,
-      dob: date.toISOString(),
-      url: profileImage,
-      bg_url: backgroundImage
-    };
-    console.log("Updated user data:", updatedUser);
-    // Here you would typically call an API to update the user
-    // Then navigate back or show success message
-    navigation.goBack();
+  const onSubmit = async (data) => {
+    try {
+      const updatedUser = { 
+        ...data, 
+        gender, 
+        dob: formatDate(date), 
+        url: profileImage, 
+        bg_url: backgroundImage 
+      };
+  
+      console.log("Dữ liệu gửi đi:", updatedUser);
+      console.log("api", `${API_URL}/${userLogin.id}`)
+
+  
+      const response = await fetch(`${API_URL}/${userLogin.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedUser),
+      });
+      const responseData = await response.json();
+      console.log('Cập nhật thành công:', responseData);
+  
+      if (response.ok) {
+        alert('Cập nhật thông tin thành công');
+      } else {
+        console.error("Lỗi từ server:", responseData);
+      }
+    } catch (error) {
+      console.error('Lỗi khi cập nhật:', error);
+    }
   };
 
+const selectImage = async (isProfile) => {
+  const options = {
+    mediaType: 'photo',
+    quality: 1,
+  };
+
+  launchImageLibrary(options, async (response) => {
+    if (response.didCancel) {
+      console.log('Người dùng huỷ chọn ảnh');
+    } else if (response.errorCode) {
+      console.log('Lỗi chọn ảnh:', response.errorMessage);
+    } else {
+      const asset = response.assets[0];
+      const uri = asset.uri;
+      const fileName = asset.fileName || 'image.jpg';
+      const type = asset.type || 'image/jpeg';
+
+      const formData = new FormData();
+      formData.append('image', {
+        uri,
+        name: fileName,
+        type,
+      });
+
+      try {
+        const uploadType = isProfile ? 'avatar' : 'background';
+        const res = await fetch(`http://10.0.2.2:8000/api/upload/${userId}/${uploadType}`, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        const resJson = await res.json();
+        if (res.ok) {
+          if (isProfile) {
+            setProfileImage(resJson.url);
+          } else {
+            setBackgroundImage(resJson.url);
+          }
+          console.log("Upload thành công:", resJson.url);
+        } else {
+          console.error("Lỗi từ API:", resJson.message);
+        }
+      } catch (error) {
+        console.error("Lỗi khi upload ảnh:", error);
+      }
+    }
+  });
+};
+
+  
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
@@ -137,38 +165,39 @@ const UserUpdated = ({ route }) => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Chỉnh sửa</Text>
       </View>
-      
+
       {/* Profile Images with Edit Options */}
       <View style={styles.imageContainer}>
-        <ImageBackground 
-          source={{ uri: backgroundImage || userLogin.bg_url }} 
-          style={styles.backgroundImage} 
+        <ImageBackground
+          source={{ uri: backgroundImage || userLogin?.bg_url || undefined }}
+          style={styles.backgroundImage}
         >
           {/* Background Image Edit Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.editBackgroundButton}
-            onPress={selectBackgroundImage}
-          >
-            <Image 
+            onPress={() => selectImage(false)}
+            >
+            <Image
               source={require("../assets/images/camera.png")} // Replace with your camera/edit icon
-              style={[styles.editIcon, { transform: [{ rotate: '315deg' }] }]} 
+              style={[styles.editIcon, { transform: [{ rotate: '315deg' }] }]}
             />
           </TouchableOpacity>
-          
+
           <View style={styles.profileImageContainer}>
-            <Image 
-              source={{ uri: profileImage || userLogin.url }} 
-              style={styles.profileImage} 
+            <Image
+              source={{ uri: profileImage|| userLogin?.bg_url || undefined }}
+              style={styles.profileImage}
             />
-            
+
             {/* Profile Image Edit Button */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.editProfileButton}
-              onPress={selectProfileImage}
+              onPress={() => selectImage(true)} // true for profile image
+
             >
-              <Image 
+              <Image
                 source={require("../assets/images/camera.png")} // Replace with your camera/edit icon
-                style={[styles.editIcon, { transform: [{ rotate: '315deg' }] }]} 
+                style={[styles.editIcon, { transform: [{ rotate: '315deg' }] }]}
               />
             </TouchableOpacity>
           </View>
@@ -177,67 +206,67 @@ const UserUpdated = ({ route }) => {
 
       {/* Form Fields */}
       <View style={styles.formContainer}>
-        <FormField 
-          label="Họ và tên"
-          name="name"
-          control={control}
-          placeholder="Họ và tên"
-        />
-        
-        <FormField 
+        <FormField
           label="Tên người dùng"
           name="username"
           control={control}
           placeholder="Tên người dùng"
         />
-        
+
+        <FormField
+          label="Email"
+          name="email"
+          control={control}
+          placeholder="Email"
+        />
+
         {/* Custom Gender Selection */}
         <Text style={styles.label}>Giới tính</Text>
         <View style={styles.genderContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
-              styles.genderOption, 
-              gender === "male" && styles.genderOptionSelected
+              styles.genderOption,
+              gender === "Nam" && styles.genderOptionSelected
             ]}
-            onPress={() => setGender("male")}
+            onPress={() => setGender("Nam")}
           >
             <Text style={[
               styles.genderText,
-              gender === "male" && styles.genderTextSelected
+              gender === "Nam" && styles.genderTextSelected
             ]}>Nam</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[
-              styles.genderOption, 
-              gender === "female" && styles.genderOptionSelected
+              styles.genderOption,
+              gender === "Nữ" && styles.genderOptionSelected
             ]}
-            onPress={() => setGender("female")}
+            onPress={() => setGender("Nữ")}
           >
             <Text style={[
               styles.genderText,
-              gender === "female" && styles.genderTextSelected
+              gender === "Nữ" && styles.genderTextSelected
             ]}>Nữ</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[
-              styles.genderOption, 
-              gender === "other" && styles.genderOptionSelected
+              styles.genderOption,
+              gender === "Khác" && styles.genderOptionSelected
             ]}
-            onPress={() => setGender("other")}
+            onPress={() => setGender("Khác")}
           >
             <Text style={[
               styles.genderText,
-              gender === "other" && styles.genderTextSelected
+              gender === "Khác" && styles.genderTextSelected
             ]}>Khác</Text>
           </TouchableOpacity>
         </View>
-        
+
         {/* Date Picker */}
         <Text style={styles.label}>Ngày sinh</Text>
         <TouchableOpacity style={styles.inputContainer} onPress={() => setOpen(true)}>
-          <Text style={styles.dateText}>{date.toDateString()}</Text>
+          <Text style={styles.dateText}>{date.toLocaleDateString("vi-VN")}</Text>
         </TouchableOpacity>
         <DatePicker
           modal
@@ -250,22 +279,22 @@ const UserUpdated = ({ route }) => {
           }}
           onCancel={() => setOpen(false)}
         />
-        
-        <FormField 
+
+        <FormField
           label="Số điện thoại"
           name="phone"
           control={control}
           placeholder="00099888"
           keyboardType="phone-pad"
         />
-        
-        <FormField 
+
+        <FormField
           label="Địa chỉ"
-          name="address"
+          name="location"
           control={control}
           placeholder="Nhập địa chỉ"
         />
-        
+
         {/* Submit Button */}
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit(onSubmit)}>
           <Text style={styles.submitButtonText}>Lưu thông tin</Text>
@@ -318,7 +347,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
-    left: ws * 20,
+    left: ws * 15,
   },
   backIcon: {
     tintColor: '#000000',

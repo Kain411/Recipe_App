@@ -39,7 +39,7 @@ const Home = () => {
                     <TouchableOpacity style={[styles.center, styles.home_tool_btn]}>
                         <Image source={require("../assets/images/Bell.png")} style={styles.home_tool_icon} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.center, styles.home_tool_btn]} onPress={() => navigation.navigate("FoodDetail")}>
+                    <TouchableOpacity style={[styles.center, styles.home_tool_btn]} onPress={() => navigation.navigate("Cart")}>
                         <Image source={require("../assets/images/Cart.png")} style={styles.home_tool_icon} />
                     </TouchableOpacity>
                 </View>                
@@ -77,7 +77,8 @@ const styles = StyleSheet.create({
     app_name: {
         fontSize: 25,
         color: '#307F85',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        marginTop: ws*20,
     },
     home_user_tool: {
         marginVertical: ws*20,

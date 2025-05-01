@@ -12,6 +12,9 @@ import ReviewDetails from "../pages/include/ReviewDetails";
 import FoodDetail from "../pages/FoodDetail";
 import UserUpdated from "../pages/UserUpdated";
 import Cart from "../pages/Cart"
+import Favorite from "../pages/Favorite";
+import User from "../pages/User";
+import OrderConfirm from "../pages/OrderConfirm";
 
 const ws = Dimensions.get('screen').width / 440;
 const Stack = createStackNavigator();
@@ -32,6 +35,9 @@ const AppLayout = () => {
                     <Stack.Screen name="FoodDetail" component={FoodDetail} />
                     <Stack.Screen name="UserUpdated" component={UserUpdated} />
                     <Stack.Screen name="Cart" component={Cart} />
+                    <Stack.Screen name="Favorite" component={Favorite} />
+                    <Stack.Screen name="User" component={User} />
+                    <Stack.Screen name="OrderConfirm" component={OrderConfirm} />
                 </Stack.Navigator>
             </NavigationContainer>
         </ContextWrapper>

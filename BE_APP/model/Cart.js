@@ -1,8 +1,7 @@
 class Cart {
-    constructor(id, user_id, totalPrice) {
+    constructor(id, user_id) {
         this.id = id;
         this.user_id = user_id;
-        this.totalPrice = totalPrice;
     }
 }
 

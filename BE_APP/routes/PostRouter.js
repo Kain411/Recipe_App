@@ -41,6 +41,27 @@ router.get("", async (req, res) => {
     }
 })
 
+router.get("/post/:postID", async (req, res) => {
+    try {
+        const { postID } = req.params;
+        
+        const postController = new PostController();
+        const post = await postController.getPostByID(postID)
+
+        if (post.post == null) {
+            return res.status(404).json({message: post.message})
+        }
+
+        return res.status(200).json({
+            post: post.post,
+            message: user.message
+        })
+    }
+    catch (error) {
+        return res.status(500).json({message: "Lỗi kết nối!"})
+    }
+})
+
 router.get("/:userID", async (req, res) => {
     try {
         const { userID } = req.params
