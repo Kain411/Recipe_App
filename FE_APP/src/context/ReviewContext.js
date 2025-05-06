@@ -17,10 +17,7 @@ export const ReviewProvider = ({children}) => {
     const handlePostNewReview = async (user, recipe, comment, rating) => {
         const result = await postNewRecipe(user, recipe, comment, rating)
 
-        setReviews(prev => [
-            ...prev,
-            result.newReview
-        ])
+        await handleGetAllReviewByRecipeID(recipe.id)
 
         return { message: result.message }
     }

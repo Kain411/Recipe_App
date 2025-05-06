@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import { Alert, Dimensions, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../context/AuthContext";
 import { PostContext } from "../context/PostContext";
+import WebView from "react-native-webview";
 
 const ws = Dimensions.get('screen').width / 440
 
@@ -17,7 +18,7 @@ const ImageVideoComponent = ({data, index, handleInfo, handleDelete}) => {
         setDisplay(false)
     }
 
-    console.log(textURL)
+    console.log(data)
 
     return (
         <View style={styles.imageVideoComponent_container}>
@@ -68,7 +69,15 @@ const ImageVideoComponent = ({data, index, handleInfo, handleDelete}) => {
             >
                 {
                     data.url !== null ?
-                    <Image source={{uri: data.url}} style={styles.imageVideoComponent_url}/>
+                        // data.type === "Image" ?
+                        <Image source={{uri: data.url}} style={styles.imageVideoComponent_url}/>
+                        // : 
+                        // <Image 
+                        //     source={{
+                        //         uri: `https://img.youtube.com/vi/${data.url.spit("?v=")[1]}/hqdefault.jpg`
+                        //     }} 
+                        //     style={styles.imageVideoComponent_url}
+                        // />
                     : <Image source={require("../assets/images/Button_Add.png")} style={styles.imageVideoComponent_url}/>
                 }
             </TouchableOpacity>

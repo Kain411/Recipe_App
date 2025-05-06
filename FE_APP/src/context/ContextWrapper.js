@@ -5,6 +5,8 @@ import { CommentProvider } from './CommentContext';
 import { ReviewProvider } from './ReviewContext';
 import { FavoriteProvider } from './FavoriteContext';
 import { RecipeProvider } from './RecipeContext';
+import { IngredientProvider } from './IngredientContext';
+import { SupplierProvider } from './SupplierContext';
 
 const ContextWrapper = ({ children }) => {
     return (
@@ -14,7 +16,11 @@ const ContextWrapper = ({ children }) => {
                     <CommentProvider>
                         <ReviewProvider>
                             <FavoriteProvider>
-                                {children}
+                                <IngredientProvider>
+                                    <SupplierProvider>
+                                        {children}
+                                    </SupplierProvider>
+                                </IngredientProvider>
                             </FavoriteProvider>
                         </ReviewProvider>
                     </CommentProvider>

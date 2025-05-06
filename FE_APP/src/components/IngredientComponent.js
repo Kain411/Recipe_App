@@ -13,6 +13,8 @@ import {HostURL} from '../services/Host';
 import { AuthContext } from '../context/AuthContext';
 
 const IngredientComponent = ({ingredients, foodID}) => {
+
+  console.log("In: ", ingredients)
   const {userLogin} = useContext(AuthContext);
 
   const [quantities, setQuantities] = useState(
@@ -35,12 +37,18 @@ const IngredientComponent = ({ingredients, foodID}) => {
   };
 
   const handleAddToCart = async () => {
+
+    const ingredientRes = []
+    for (const ingredientData of ingredients) {
+      const tmp = {
+        ingredientId: ingredientData.ingredient.id,
+        quantity: ingredientData.quantity
+      }
+      ingredientRes.push(tmp)
+    }
     const payload = {
       recipeId: foodID,
-      ingredients: Object.entries(quantities).map(([id, quantity]) => ({
-        ingredientId: id,
-        quantity,
-      })),
+      ingredients: ingredientRes
     };
 
     try {

@@ -5,6 +5,8 @@ const ws = Dimensions.get('screen').width / 440
 
 const CommentComponent = ({comment}) => {
 
+    console.log(comment)
+
     const navigation = useNavigation()
 
     return (
@@ -25,6 +27,7 @@ const CommentComponent = ({comment}) => {
                 <Text style={styles.commentComponent_comment}>
                     {comment.comment}
                 </Text>
+                <Text style={styles.commentComponent_time}>{comment.time}</Text>
             </View>
         </View>
     )
@@ -60,8 +63,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#FAFAFA',
         paddingVertical: ws*10,
         paddingHorizontal: ws*15,
-        borderRadius: 15,
+        borderRadius: ws*10,
         elevation: 5,
+        position: 'relative'
     },
     commentComponent_user: {
 
@@ -70,4 +74,13 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: 'bold',
     },
+    commentComponent_comment: {
+        marginBottom: ws*10
+    },
+    commentComponent_time: {
+        position: 'absolute',
+        right: ws*10,
+        bottom: ws*5,
+        fontSize: ws*13,
+    }
 })

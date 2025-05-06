@@ -34,10 +34,10 @@ const PostDetails = () => {
         setAlert(response.message)
         setMyComment("")
         Alert.alert(
-            "Cảnh báo", 
-            alert,
-            [{ text: "OK", onPress: () => setAlert("") }]
+            "Thông báo", 
+            response.message
         )
+        setMyComment("")
     }
 
     return (

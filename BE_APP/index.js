@@ -33,6 +33,9 @@ app.use('/api/favorites', FavoriteRouter)
 const OrderRouter = require("./routes/OrderRouter")
 app.use('/api/order', OrderRouter)
 
+const SupplierRouter = require("./routes/SupplierRouter")
+app.use('/api/suppliers', SupplierRouter)
+
 const UploadRouter = require("./utils")
 app.use('/api/upload', UploadRouter)
 

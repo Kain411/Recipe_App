@@ -50,7 +50,10 @@ router.get("/:userId", async (req, res) => {
 router.post("/:userId/add-to-cart", async (req, res) => {
     try {
         const userId = req.params.userId
-        const {ingredientId, quantity} = req.body
+        const { ingredientId, quantity } = req.body
+        console.log("userID: ", userId)
+        console.log("ingredientID: ", ingredientId)
+        console.log("quantity: ", quantity)
         const result = await cartController.addIngredientToCart(userId, ingredientId, quantity);
         return res.status(result.success ? 201 : 400).json(result);
     } catch (error) {

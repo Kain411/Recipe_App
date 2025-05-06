@@ -81,7 +81,7 @@ const Foods = () => {
 
   useEffect(() => {
     if (modeFoods == []) setFilteredFoods(foods);
-    if (modeFoods) {
+    if (modeFoods && modeFoods!=='normal') {
       const results = foods.filter(food => food.mode === modeFoods); // hoặc điều kiện phù hợp với cấu trúc dữ liệu của bạn
       setFilteredFoods(results);
     } else {
@@ -114,6 +114,15 @@ const Foods = () => {
     setChoose(false);
     setFilteredFoods(result);
   };
+
+  const handleRemoveOndiet = (index) => {
+    const res = []
+    for (let i = 0; i < ingredientOndiet.length; i++) {
+      if (i!==index) res.push(ingredientOndiet[i])
+    }
+
+    setIngredientOndiet(res)
+  }
 
   return (
     <ScrollView
@@ -208,10 +217,12 @@ const Foods = () => {
                   <View
                     key={index}
                     style={[styles.center_y, styles.recipe_choose_list_one]}>
-                    <Image
-                      source={require('../assets/images/Arrow.png')}
-                      style={styles.recipe_choose_icon}
-                    />
+                    <TouchableOpacity onPress={() => handleRemoveOndiet(index)}>
+                      <Image
+                        source={require('../assets/images/Mark_X.png')}
+                        style={styles.recipe_choose_icon}
+                      />
+                    </TouchableOpacity>
                     <Text>{item}</Text>
                   </View>
                 );
@@ -335,7 +346,7 @@ const styles = StyleSheet.create({
   },
   recipe_mode_btn: {
     width: ws * 70,
-    height: ws * 45,
+    height: ws * 50,
     backgroundColor: '#70B9BE',
     borderRadius: 10,
     // color: 'white',
@@ -368,4 +379,17 @@ const styles = StyleSheet.create({
   recipe_choose_list_one: {
     marginBottom: ws * 15,
   },
+
+  recipe_mode_box: {
+    width: ws*130,
+    height: ws*50
+  },
+  recipe_mode_dropdown: {
+    width: ws*130,
+    zIndex: 50,
+    backgroundColor: '#ffffff',
+    position: 'absolute',
+    top: ws*40,
+    left: 0,
+  }
 });

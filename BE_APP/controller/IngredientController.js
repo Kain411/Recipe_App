@@ -9,16 +9,18 @@ class IngredientController {
             const newIngredient = new Ingredient(
                 newDoc.id,
                 data.name,
-                data.image_url,
+                data.url,
                 data.calories,
                 data.protein,
                 data.fat,
                 data.carb,
                 data.quantity,
                 data.unit,
-                data.price
+                data.price,
+                data.id_supplier,
+                data.description
             );
-
+            console.log("Data before save:", JSON.stringify(newIngredient, null, 2));
             await newDoc.set({ ...newIngredient });
 
             return { success: true, message: "Thêm nguyên liệu thành công!", id: newDoc.id };
@@ -43,6 +45,27 @@ class IngredientController {
             }));
 
             return { success: true, ingredients };
+        } catch (error) {
+            console.error("Lỗi khi lấy danh sách nguyên liệu:", error);
+            return { success: false, message: "Lỗi khi lấy danh sách nguyên liệu!" };
+        }
+    }
+
+    //Lấy nguyên liệu theo IDSupplier
+    async getIngredientBySupplierId(id_supplier){
+        try {
+            const querySnapshot  = await db.collection("ingredients")
+            .where("id_supplier", "==", id_supplier).get()
+
+            if(querySnapshot.empty){
+                return {sucess: true, ingredients: []}
+            }
+
+            const ingredients = querySnapshot.docs.map(doc =>({
+                id: doc.id,
+                ...doc.data()
+            }))
+            return {success: true, ingredients}
         } catch (error) {
             console.error("Lỗi khi lấy danh sách nguyên liệu:", error);
             return { success: false, message: "Lỗi khi lấy danh sách nguyên liệu!" };

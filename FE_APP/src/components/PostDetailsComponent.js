@@ -7,7 +7,10 @@ const PostDetailsComponent = ({post_details}) => {
 
     return (
         <View style={styles.postDetailsComponent_container}>
-            <Text style={styles.postDetailsComponent_caption}>{post_details.caption}</Text>
+            {
+                post_details.caption!=="" &&
+                <Text style={styles.postDetailsComponent_caption}>{post_details.caption}</Text>
+            }
             {
                 post_details.type === "Image" ?
                 <Image source={{uri: post_details.url}} style={styles.postDetailsComponent_url} /> 

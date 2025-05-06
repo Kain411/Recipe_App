@@ -17,10 +17,7 @@ export const CommentProvider = ({children}) => {
     const handlePostNewComment = async (userID, postID, comment) => {
         const result = await postNewComment(userID, postID, comment)
 
-        setComments(prev => [
-            ...prev,
-            result.newComment
-        ])
+        await handleGetAllCommentByPostID(postID)
 
         return { message: result.message }
     }

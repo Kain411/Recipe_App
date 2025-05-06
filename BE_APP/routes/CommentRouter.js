@@ -22,6 +22,7 @@ router.get("/:postID", async (req, res) => {
             const comment = {
                 id: commentData.id,
                 comment: commentData.comment,
+                time: commentData.time,
                 user: user.user
             }
 

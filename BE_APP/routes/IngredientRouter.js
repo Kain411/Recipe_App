@@ -42,6 +42,17 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+//API lây nguyên liệu theo id_supplier
+router.get("/supplier/:id_supplier", async(req, res) =>{
+    try {
+        const {id_supplier} = req.params
+        const result = await ingredientController.getIngredientBySupplierId(id_supplier)
+        return res.status(result.success? 200 : 404).json(result)
+    } catch (e) {
+        return res.status(500).json({success: false, message: "Lỗi server"})
+    }
+})
+
 // API cập nhật nguyên liệu
 router.put("/:id", validateIngredient, async (req, res) => {
     const errors = validationResult(req);

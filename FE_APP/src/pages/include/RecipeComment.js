@@ -27,6 +27,7 @@ const RecipeCommentComponent = ({item}) => {
                 </View>
                 <Text style={styles.recipe_comment_content}>{item.comment}</Text>
             </View>
+            <Text style={styles.recipe_comment_time}>{item.time}</Text>
         </View> 
     )
 }
@@ -63,6 +64,7 @@ const styles = StyleSheet.create({
     recipe_comment_container: {
         width: ws*380,
         backgroundColor: '#ffffff',
+        marginBottom: ws*20
     },
     recipe_comment_title: {
         fontSize: ws*18,
@@ -70,8 +72,9 @@ const styles = StyleSheet.create({
         marginVertical: ws*10,
     },
     recipe_comment_user: {
-        paddingVertical: ws*15,
-        alignItems: 'flex-start'
+        paddingVertical: ws*20,
+        alignItems: 'flex-start',
+        position: 'relative',
     },
     recipe_comment_user_url: {
         width: ws*50,
@@ -107,4 +110,10 @@ const styles = StyleSheet.create({
         color: '#000000',
         marginTop: ws*5,
     },
+    recipe_comment_time: {
+        fontSize: ws*13,
+        position: 'absolute',
+        right: ws*10,
+        bottom: ws*5
+    }
 })

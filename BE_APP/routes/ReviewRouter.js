@@ -23,6 +23,7 @@ router.get("/:recipeID", async (req, res) => {
                 id: reviewData.id,
                 comment: reviewData.comment,
                 rating: reviewData.rating,
+                time: reviewData.time,
                 user: user.user
             }
 
